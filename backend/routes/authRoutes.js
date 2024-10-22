@@ -4,6 +4,7 @@ const User = require('../models/User');
 const zod = require('zod');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require("../config/var");
+const authMiddleware = require('../middleware/index');
 
 const signupObj = zod.object({  
     username:zod.string(),
@@ -65,7 +66,7 @@ const updateBody = zod.object({
 	password: zod.string().optional(),
     firstName: zod.string().optional(),
     lastName: zod.string().optional(),
-})
+});
 
 router.put("/", authMiddleware, async (req, res) => {
     const { success } = updateBody.safeParse(req.body)
