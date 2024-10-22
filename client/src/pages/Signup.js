@@ -27,13 +27,16 @@ export const Signup = () => {
         }} placeholder="Doe" label={"Last Name"} />
         <InputBox onChange={e => {
           setUsername(e.target.value);
-        }} placeholder="harkirat@gmail.com" label={"Email"} />
+        }} placeholder="example@email.com" label={"Email"} />
+        <InputBox onChange={e => {
+          setUsername(e.target.value);
+        }} placeholder="user1" label={"Username"} />
         <InputBox onChange={(e) => {
           setPassword(e.target.value)
-        }} placeholder="123456" label={"Password"} />
+        }} placeholder="password" label={"Password"} />
         <div className="pt-4">
           <Button onClick={async () => {
-            const response = await axios.post("http://localhost:3000/api/v1/user/signup", {
+            const response = await axios.post("https://paytmweb.vercel.app/api/v1/auth/signup", {
               username,
               firstName,
               lastName,
