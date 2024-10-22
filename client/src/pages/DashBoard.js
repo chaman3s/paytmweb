@@ -2,7 +2,7 @@ import { Appbar } from "../components/Appbar"
 import { Balance } from "../components/Balance"
 import { Users } from "../components/Users"
 
-export const Dashboard = () => {
+export  default  function Dashboard ()  {
     const backendHost= process.env.REACT_APP_BackendHost;
     return (<div>
         <Appbar />

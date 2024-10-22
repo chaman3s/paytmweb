@@ -6,7 +6,7 @@ import { InputBox } from "../components/InputBox"
 import { SubHeading } from "../components/SubHeading"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
-export const Signin = () => {
+export  default  function Signin (){
   const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
