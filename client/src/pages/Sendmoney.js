@@ -9,7 +9,7 @@ export const SendMoney = () => {
     const [amount, setAmount] = useState(0);
     const backendHost= process.env.REACT_APP_BackendHost;
 
-    return <div class="flex justify-center h-screen bg-gray-100">
+    return( <div class="flex justify-center h-screen bg-gray-100">
         <div className="h-full flex flex-col justify-center">
             <div
                 class="border h-min text-card-foreground max-w-md p-4 space-y-8 w-96 bg-white shadow-lg rounded-lg"
@@ -58,5 +58,6 @@ export const SendMoney = () => {
                 </div>
         </div>
       </div>
-    </div>
+    </div>)
+    
 }
