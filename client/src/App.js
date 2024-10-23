@@ -7,7 +7,7 @@ import {
 import "./App.css"
 import  Signup  from "./pages/Signup.js";
 import  Signin  from "./pages/Signin.js";
-import  Dashboard  from "./pages/Dashboard";
+import  {Dashboard}  from "./pages/Dashboard";
 import  SendMoney  from "./pages/Sendmoney.js";
 
 // Protected Route Component
