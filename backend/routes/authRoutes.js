@@ -67,11 +67,14 @@ const signupObj = zod.object({
             dataSource: Source,
             database: "paytmweb",
             collection: "User",
-            filter: { email: email }
+            filter:  {$or: [
+                { email: email },
+                { username: username }
+            ]}
         });
 
         if (existingUser.document) {
-            return res.status(400).send({ message: "Email already exists" });
+            return res.status(400).send({ message: "Email  or Username already exists" });
         }
 
         const salt = await bcrypt.genSalt(10);

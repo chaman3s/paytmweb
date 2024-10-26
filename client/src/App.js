@@ -9,6 +9,7 @@ import  Signup  from "./pages/Signup.js";
 import  Signin  from "./pages/Signin.js";
 import  {Dashboard}  from "./pages/Dashboard";
 import  SendMoney  from "./pages/Sendmoney.js";
+import SuccessPage from "./pages/SuccessPage.jsx";
 
 // Protected Route Component
 const ProtectedRoute = ({ element: Element }) => {
@@ -26,6 +27,7 @@ function App() {
           {/* Protecting the routes below */}
           <Route path="/dashboard" element={<ProtectedRoute element={Dashboard} />} />
           <Route path="/send" element={<ProtectedRoute element={SendMoney} />} />
+          <Route path="/success" element={<ProtectedRoute element={SuccessPage} />} />
         </Routes>
       </BrowserRouter>
     </>
