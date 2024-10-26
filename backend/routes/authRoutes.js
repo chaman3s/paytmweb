@@ -61,7 +61,7 @@ const signupObj = zod.object({
     }
 
     try {
-        const { username, fristname, lastname, password, email } = req.body;
+        const { username, firstname, lastname, password, email } = req.body;
 
         const existingUser = await apiPostRequest('findOne', {
             dataSource: Source,
@@ -83,7 +83,7 @@ const signupObj = zod.object({
             database: "paytmweb",
             collection: "User",
             document: {
-                fristname,
+                firstname,
                 lastname,
                 username,
                 password: securePass,
@@ -169,7 +169,7 @@ router.post("/signin", async (req, res) => {
 
 
 const updateBody = zod.object({
-	password: zod.string(),
+	password: zod.string().optional(),
     newPassword: zod.string().optional(),
     firstName: zod.string().optional(),
     lastName: zod.string().optional(),
@@ -258,17 +258,14 @@ router.put("/userdata", authMiddleware, async (req, res) => {
 });
 router.get("/bulk", async (req, res) => {
     const filter = req.query.filter || "";
-    const {username,password} = req.body;
+    console.log("filter: ", filter);
 
     const existingUsers = await apiPostRequest('find', {
         dataSource: Source, 
         database: "paytmweb", 
         collection: "User",
         filter: {
-            $or: [
-                { firstName: { "$regex": filter } },
-                { lastName: { "$regex": filter } }
-            ]
+            username: { $regex: `^${filter}`, $options: "i" }  // Case-insensitive match
         }
     });
     
@@ -282,7 +279,7 @@ router.get("/bulk", async (req, res) => {
    
 
     res.status(200).json({
-        user: users.map(user => ({
+        user: existingUsers.documents.map(user => ({
             username: user.username,
             firstName: user.firstName,
             lastName: user.lastName,
