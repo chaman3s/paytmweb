@@ -94,15 +94,7 @@ const signupObj = zod.object({
         const userId = userResult.insertedId;  // Get the _id of the newly inserted user
 
         // Now insert into Account collection with the new userId
-        const accountResult = await apiPostRequest('insertOne', {
-            dataSource: Source,
-            database: "paytmweb",
-            collection: "Account",
-            document: {
-                userId: userId,
-                balance: 100
-            }
-        });
+       
 
         return res.status(201).send({ message: "User registered successfully", userId: userId });
     } catch (error) {
@@ -117,41 +109,64 @@ const signinBody = zod.object({
 })
 
 router.post("/signin", async (req, res) => {
-    const { success } = signinBody.safeParse(req.body)
+    const { success } = signinBody.safeParse(req.body);
     if (!success) {
         return res.status(411).json({
-            message: " Incorrect inputs"
-        })
+            message: "Incorrect inputs"
+        });
     }
-    const {username,password} = req.body;
 
+    const { username, password } = req.body;
+
+    // Check if user exists
     const existingUser = await apiPostRequest('findOne', {
         dataSource: Source, 
         database: "paytmweb", 
         collection: "User", 
-        filter: {username:username}
-      });
-      console.log("userex: ",existingUser._id);
-    if(!existingUser.document){
-      return  res.status(411).send({ message:"Username and password are invalid"});
-    }
-    const pwdCompare = await bcrypt.compare(password, existingUser.document.password);
+        filter: { username: username }
+    });
 
-    if (!pwdCompare) {
-        return res.status(411).json({ message:"Username and password are invalid"});
+    if (!existingUser.document) {
+        return res.status(411).send({ message: "Username and password are invalid" });
     }
-    
-      
-      console.log("exists: ",existingUser.document._id);
-        const token = jwt.sign({
-            userId: existingUser.document._id
-        }, JWT_SECRET);
-  
-        return res.status(200).json({
-            message: "users successfully login",
-            token: token
-        })
-})
+
+    // Verify password
+    const pwdCompare = await bcrypt.compare(password, existingUser.document.password);
+    if (!pwdCompare) {
+        return res.status(411).json({ message: "Username and password are invalid" });
+    }
+
+    // Check if account exists
+    const userId = existingUser.document._id;
+    const existingAccount = await apiPostRequest('findOne', {
+        dataSource: Source,
+        database: "paytmweb",
+        collection: "Account",
+        filter: { userId: userId }
+    });
+
+    // If the account doesn't exist, create it with an initial balance
+    if (!existingAccount.document) {
+        await apiPostRequest('insertOne', {
+            dataSource: Source,
+            database: "paytmweb",
+            collection: "Account",
+            document: {
+                userId: userId,
+                balance: 100 // Initial balance
+            }
+        });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ userId: userId }, JWT_SECRET);
+
+    return res.status(200).json({
+        message: "User successfully logged in",
+        token: token
+    });
+});
+
 
 const updateBody = zod.object({
 	password: zod.string(),
