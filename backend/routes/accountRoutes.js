@@ -34,13 +34,12 @@ router.post("/transfer", authMiddleware, async (req, res) => {
     const userId = req.userId;
     const validObjectId = new mongoose.Types.ObjectId(userId);
     const existingUser = await apiPostRequest('findOne', {
-        dataSource: Source,
-        database: "paytmweb",
-        collection: "User",
-        filter: { _id:{
-            "$oid":validObjectId.toString()}},
-    }
-);
+        dataSource: Source, 
+        database: "paytmweb", 
+        collection: "Account",
+       filter: { _id:{
+        "$oid":validObjectId.toString()}},
+    }).session(session);
 if (!existingUser.documents || existingUser.documents.length === 0|| existingUser.balance < amount) {
     return res.status(400).send({ message:"Insufficient balance" });
 }

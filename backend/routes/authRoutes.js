@@ -50,44 +50,67 @@ const signupObj = zod.object({
     password: zod.string(),
     email : zod.string().email(),
 });
-router.post('/signup', async (req, res) =>{
-    if(!req.body){return res.status(411).send({message:"pls send vaild data"});}
-    const {success} =signupObj.safeParse(req.body);
-    if(!success){
-       return  res.status(411).send({ message:"invaid input"}); 
+ router.post('/signup', async (req, res) => {
+    if (!req.body) {
+        return res.status(411).send({ message: "Please send valid data" });
     }
-    try{
-    const {username,fristname,lastname,password,email} = req.body;
-    const existingUser = await apiPostRequest('findOne', {
-        dataSource: Source, 
-        database: "paytmweb", 
-        collection: "User", 
-        filter: {email: email }
-      });
-      console.log("userex: ",existingUser);
-    if(existingUser.document){
-      return  res.status(400).send({ message:"email already  exists"});
+
+    const { success } = signupObj.safeParse(req.body);
+    if (!success) {
+        return res.status(411).send({ message: "Invalid input" });
     }
-    const salt = await bcrypt.genSalt(10);
-    const securePass = await bcrypt.hash(password, salt);
-    console.log("dfg");
-    let dbuser =await apiPostRequest('insertOne', {
-        dataSource: Source,
-        database: "paytmweb",
-        collection: "User",
-        document: {
-          fristname,
-          lastname,
-          username,
-          password: securePass,
-          email,
-          
+
+    try {
+        const { username, fristname, lastname, password, email } = req.body;
+
+        const existingUser = await apiPostRequest('findOne', {
+            dataSource: Source,
+            database: "paytmweb",
+            collection: "User",
+            filter: { email: email }
+        });
+
+        if (existingUser.document) {
+            return res.status(400).send({ message: "Email already exists" });
         }
-      })
-    res.status(200).send({message:"user successfully created"});
+
+        const salt = await bcrypt.genSalt(10);
+        const securePass = await bcrypt.hash(password, salt);
+
+        // Insert the new user and get the _id
+        const userResult = await apiPostRequest('insertOne', {
+            dataSource: Source,
+            database: "paytmweb",
+            collection: "User",
+            document: {
+                fristname,
+                lastname,
+                username,
+                password: securePass,
+                email,
+            }
+        });
+
+        const userId = userResult.insertedId;  // Get the _id of the newly inserted user
+
+        // Now insert into Account collection with the new userId
+        const accountResult = await apiPostRequest('insertOne', {
+            dataSource: Source,
+            database: "paytmweb",
+            collection: "Account",
+            document: {
+                userId: userId,
+                balance: 100
+            }
+        });
+
+        return res.status(201).send({ message: "User registered successfully", userId: userId });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({ message: "Internal server error" });
     }
-    catch(error){console.log("error:",error);}
 });
+
 const signinBody = zod.object({
     username: zod.string(),
 	password: zod.string()
@@ -117,16 +140,7 @@ router.post("/signin", async (req, res) => {
     if (!pwdCompare) {
         return res.status(411).json({ message:"Username and password are invalid"});
     }
-    let dbuser =await apiPostRequest('insertOne', {
-        dataSource: Source,
-        database: "paytmweb",
-        collection: "Account",
-        document: {
-          userId: existingUser._id,
-          balance:100
-          
-        }
-      })
+    
       
       console.log("exists: ",existingUser.document._id);
         const token = jwt.sign({
