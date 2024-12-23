@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs');
 const { JWT_SECRET,dataApiKey,dataApiUrl,database,Source} = require("../config/var");
 const authMiddleware = require('../middleware/index');
 const mongoose = require('mongoose');
+const db = require('@repo/db/client'); 
 const headers = {
     'Content-Type': 'application/json',
     'api-key': dataApiKey,
@@ -21,6 +22,55 @@ const headers = {
 const usersnmeobj= zod.object({
     username:zod.string()
 })
+router.post('/PayWebUserAuth', async (req, res) => {
+    const { phone, password } = req.body;
+
+    if (!phone || !password) {
+        return res.status(400).json({ message: 'Phone number and password are required.' });
+    }
+
+    try {
+        const existingUser = await db.user.findFirst({ where: { number: phone } });
+
+        if (existingUser) {
+            // Compare passwords
+            const passwordValidation = await bcrypt.compare(password, existingUser.password);
+
+            if (passwordValidation) {
+                const token = generateToken(existingUser);
+                return res.status(200).json({
+                    id: existingUser.id,
+                    name: existingUser.name,
+                    email: existingUser.number,
+                    token
+                });
+            } else {
+                return res.status(401).json({ message: 'Invalid credentials.' });
+            }
+        }
+
+        // If user doesn't exist, create a new user
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await db.user.create({
+            data: {
+                number: phone,
+                password: hashedPassword
+            }
+        });
+
+        const token = generateToken(newUser);
+
+        res.status(201).json({
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.number,
+            token
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+});
 router.post('/Checkusername', async (req, res) =>{
     if(!req.body){return res.status(411).send({message:"pls send vaild data"});}
     const {success} =usersnmeobj.safeParse(req.body);
@@ -259,6 +309,23 @@ router.put("/userdata", authMiddleware, async (req, res) => {
         });
     }
 });
+router.get('/api/users', async (req, res) => {
+    const users = await User.find();
+    res.json(users);
+  });
+  
+  router.post('/api/users', async (req, res) => {
+    const newUser = new User(req.body);
+    await newUser.save();
+    res.status(201).json(newUser);
+  });
+  
+  router.delete('/api/users/:id', async (req, res) => {
+    await User.findByIdAndDelete(req.params.id);
+    res.status(204).send();
+  });
+  
+  
 router.get("/bulk", async (req, res) => {
     const filter = req.query.filter || "";
     console.log("filter: ", filter);

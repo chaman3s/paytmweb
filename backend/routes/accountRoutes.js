@@ -3,6 +3,7 @@ const authMiddleware  = require('../middleware/index');
 const { Account } = require("../models/Account");
 const mongoose = require('mongoose');
 const axios = require('axios');
+const db = require('@repo/db/client');
 const { dataApiKey,dataApiUrl,Source} = require("../config/var");
 const headers = {
     'Content-Type': 'application/json',
@@ -14,8 +15,70 @@ const headers = {
     const response = await axios.post(`${dataApiUrl}/${action}`, body, { headers });
     return response.data;
   }
+  router.post("/create-onramp-transaction", authMiddleware, async (req, res) => {
+    const { provider, amount } = req.body;
+    const user = req.user; // Extracted by authMiddleware
+
+    if (!user || !user.id) {
+        return res.status(401).json({
+            message: "Unauthenticated request",
+        });
+    }
+
+    const token = (Math.random() * 1000).toString();
+
+    try {
+        await prisma.onRampTransaction.create({
+            data: {
+                provider,
+                status: "Processing",
+                startTime: new Date(),
+                token: token,
+                userId: Number(user.id),
+                amount: amount * 100,
+            },
+        });
+
+        res.status(200).json({ message: "Done" });
+    } catch (error) {
+        console.error("Error creating on-ramp transaction:", error);
+        res.status(500).json({
+            message: "Failed to create transaction",
+            error: error.message,
+        });
+    }
+});
 
 const router = express.Router();
+router.post('/onramp', authenticateToken, async (req, res) => {
+    const { provider, amount } = req.body;
+
+    if (!provider || !amount) {
+        return res.status(400).json({ message: 'Provider and amount are required' });
+    }
+
+    try {
+        const token = (Math.random() * 1000).toString(); // Generate a mock token
+        const transaction = await prisma.onRampTransaction.create({
+            data: {
+                provider,
+                status: 'Processing',
+                startTime: new Date(),
+                token: token,
+                userId: Number(req.user.id), // User ID from authenticated user
+                amount: amount * 100 // Assuming the amount is in cents
+            }
+        });
+
+        res.status(201).json({
+            message: 'Transaction created successfully',
+            transaction
+        });
+    } catch (error) {
+        console.error('Error creating transaction:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
 router.get("/balance",authMiddleware, async (req, res) => {
     const userId = req.userId;

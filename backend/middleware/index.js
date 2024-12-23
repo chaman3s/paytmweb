@@ -23,5 +23,15 @@ const authMiddleware = (req, res, next) => {
         return res.status(403).json({mess:"check jwt token"});
     }
 };
+function authenticateToken(req, res, next) {
+    const token = req.headers.authorization?.split(' ')[1]; // Extract token from Bearer schema
+    if (!token) return res.status(401).json({ message: 'Unauthorized request' });
 
-module.exports = authMiddleware;
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ message: 'Forbidden' });
+        req.user = user; // Attach the decoded user to the request
+        next();
+    });
+}
+
+module.exports ={ authMiddleware, authenticateToken};
