@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BottomWarning } from "../components/BottomWarning";
-import { Button } from "../components/Button";
+import Button from "../components/Button";
 import { Heading } from "../components/Heading";
 import { InputBox } from "../components/InputBox";
 import { SubHeading } from "../components/SubHeading";
@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 export default function Signup() {
   const [firstname, setfirstname] = useState("");
   const [lastname, setlastname] = useState("");
-  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
@@ -46,7 +46,7 @@ export default function Signup() {
     let validationErrors = {};
     if (!firstname) validationErrors.firstname = "First name is required";
     if (!lastname) validationErrors.lastname = "Last name is required";
-    if (!email) validationErrors.email = "Email is required";
+    if (!phone) validationErrors.phone = "phone is required";
     if (!username) validationErrors.username = "Username is required";
     if (!password) validationErrors.password = "Password is required";
     setErrors(validationErrors);
@@ -67,7 +67,7 @@ export default function Signup() {
         firstname,
         lastname,
         password,
-        email,
+        phone,
        
       });
 
@@ -99,8 +99,8 @@ export default function Signup() {
           <InputBox onChange={(e) => setlastname(e.target.value)} placeholder="Doe" label={"Last Name"} />
           {errors.lastname && <div className="text-red-500 text-sm">{errors.lastname}</div>}
 
-          <InputBox onChange={(e) => setEmail(e.target.value)} placeholder="example@email.com" label={"Email"} />
-          {errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
+          <InputBox onChange={(e) => setPhone(e.target.value)} placeholder="1112222333" label={"Moblie Number"} />
+          {errors.phone && <div className="text-red-500 text-sm">{errors.phone}</div>}
 
           <InputBox onChange={(e) => {setUsername(e.target.value) ;}} placeholder="user1" label={"Username"} />
           {errors.username && <div className="text-red-500 text-sm">{errors.username}</div>}

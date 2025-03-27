@@ -6,4 +6,5 @@ module.exports = {
     dataApiKey:  process.env.MONGO_DATA_API_KEY,
 	database: process.env.MONGO_DATA_database,
 	Source : process.env.MONGO_DATA_Source,
+	mongoUrl:process.env.MONGO_URI,
 }

@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const { JWT_SECRET,dataApiKey,dataApiUrl,database,Source} = require("../config/var");
 const authMiddleware = require('../middleware/index');
 const mongoose = require('mongoose');
-const db = require('@repo/db/client'); 
+// const db = require('@repo/db/client'); 
 const headers = {
     'Content-Type': 'application/json',
     'api-key': dataApiKey,
@@ -229,86 +229,86 @@ const updateBody = zod.object({
     email: zod.string().email().optional(),
 });
 
-router.put("/userdata", authMiddleware, async (req, res) => {
-    const { success } = updateBody.safeParse(req.body);
+// router.put("/userdata", authMiddleware, async (req, res) => {
+//     const { success } = updateBody.safeParse(req.body);
 
-    if (!success) {
-        return res.status(411).json({
-            message: "Error while updating information"
-        });
-    }
+//     if (!success) {
+//         return res.status(411).json({
+//             message: "Error while updating information"
+//         });
+//     }
 
-    try {
-        console.log("Raw User ID:", req.userId);
-        const userId = req.userId; 
+//     try {
+//         console.log("Raw User ID:", req.userId);
+//         const userId = req.userId; 
 
-        const {updateFieldobj} = req.body; // T
-        // Validate the userId to ensure it's a valid ObjectId string
-        // if (!m.isValid(req.userId)) {
-        //     return res.status(400).json({ message: "Invalid User ID format" });
-        // }
+//         const {updateFieldobj} = req.body; // T
+//         // Validate the userId to ensure it's a valid ObjectId string
+//         // if (!m.isValid(req.userId)) {
+//         //     return res.status(400).json({ message: "Invalid User ID format" });
+//         // }
         
-        // Use createFromHexString for proper conversion
-        const validObjectId = new mongoose.Types.ObjectId(userId);
-    //     console.log("Validated ObjectId:", validObjectId.toString());
-    //      const findUserData = await apiPostRequest('findOne', {
-    //         dataSource: Source,
-    //         database: "paytmweb",
-    //         collection: "User",
-    //         filter: { _id:{
-    //             "$oid":validObjectId.toString()}},
-    //          // Pass the validated ObjectI
-    //     }
-    // );
+//         // Use createFromHexString for proper conversion
+//         const validObjectId = new mongoose.Types.ObjectId(userId);
+//     //     console.log("Validated ObjectId:", validObjectId.toString());
+//     //      const findUserData = await apiPostRequest('findOne', {
+//     //         dataSource: Source,
+//     //         database: "paytmweb",
+//     //         collection: "User",
+//     //         filter: { _id:{
+//     //             "$oid":validObjectId.toString()}},
+//     //          // Pass the validated ObjectI
+//     //     }
+//     // );
 
 
-    // if (!findUserData.document) {
-    //   return res.status(404).json({ message: "User not found" });
-    // }
+//     // if (!findUserData.document) {
+//     //   return res.status(404).json({ message: "User not found" });
+//     // }
 
-    // const user = findUserData.document;
+//     // const user = findUserData.document;
 
 
-        // Perform the update query with the valid ObjectId
-        // if (password && newPassword) {
-        //     const isMatch = await bcrypt.compare(password, user.password);
-        //     if (!isMatch) {
-        //       return res.status(400).json({ message: "Old password is incorrect" });
-        //     }
+//         // Perform the update query with the valid ObjectId
+//         // if (password && newPassword) {
+//         //     const isMatch = await bcrypt.compare(password, user.password);
+//         //     if (!isMatch) {
+//         //       return res.status(400).json({ message: "Old password is incorrect" });
+//         //     }
       
-        //     // Hash the new password and add it to update fields
-        //     const hashedPassword = await bcrypt.hash(newPassword, 10);
-        //     updateFields.password = hashedPassword;
-        //   }
-        // }
-        const existingUser = await apiPostRequest('updateOne', {
-            dataSource: Source,
-            database: "paytmweb",
-            collection: "User",
-            filter: { _id:{
-                "$oid":validObjectId.toString()}},
-             // Pass the validated ObjectId
-             update: { $set: updateFieldobj },
-        }
-    );
+//         //     // Hash the new password and add it to update fields
+//         //     const hashedPassword = await bcrypt.hash(newPassword, 10);
+//         //     updateFields.password = hashedPassword;
+//         //   }
+//         // }
+//         const existingUser = await apiPostRequest('updateOne', {
+//             dataSource: Source,
+//             database: "paytmweb",
+//             collection: "User",
+//             filter: { _id:{
+//                 "$oid":validObjectId.toString()}},
+//              // Pass the validated ObjectId
+//              update: { $set: updateFieldobj },
+//         }
+//     );
 
-        console.log("Update response:", existingUser);
+//         console.log("Update response:", existingUser);
 
-        // if (existingUser.matchedCount === 0) {
-        //     return res.status(404).json({ message: "User not found" });
-        // }
+//         // if (existingUser.matchedCount === 0) {
+//         //     return res.status(404).json({ message: "User not found" });
+//         // }
 
-        return res.status(200).json({
-            message: "Updated successfully"
-        });
+//         return res.status(200).json({
+//             message: "Updated successfully"
+//         });
 
-    } catch (error) {
-        console.error("Error during user update:", error);
-        return res.status(500).json({
-            message: "Internal Server Error"
-        });
-    }
-});
+//     } catch (error) {
+//         console.error("Error during user update:", error);
+//         return res.status(500).json({
+//             message: "Internal Server Error"
+//         });
+//     }
+// });
 router.get('/api/users', async (req, res) => {
     const users = await User.find();
     res.json(users);

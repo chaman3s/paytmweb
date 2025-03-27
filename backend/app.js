@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mainRotues = require('./routes/index');
+const {mongoUrl} = require("./config/var");
 
 const app = express();
 app.use(cors({
@@ -12,15 +13,21 @@ app.use(cors({
 app.use(express.json());
 const connectDB = require('./config/db'); 
 
+const User = require('./models/User');
+
 require('dotenv').config();
 connectDB();
 
 
 app.use('/api/v1/',mainRotues);
-app.get('/',(req, res)=>{
-
-    res.json({msg:"hello"});
-})
+app.get("/", async (req, res) => {
+    try {
+        const users = await User.find();
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 
 const PORT = process.env.PORT || 5000;
