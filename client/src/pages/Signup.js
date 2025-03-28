@@ -6,82 +6,87 @@ import { InputBox } from "../components/InputBox";
 import { SubHeading } from "../components/SubHeading";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useGeolocated } from "react-geolocated";
 
 export default function Signup() {
-  const [firstname, setfirstname] = useState("");
-  const [lastname, setlastname] = useState("");
-  const [phone, setPhone] = useState("");
+ 
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [mobileno, setMobileno] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [location, setLocation] = useState({ latitude: null, longitude: null });
   const navigate = useNavigate();
-  useEffect(()=>{async function Checkusernameavailable(params) {
-    
-  
-    if(username.length>2){
-      setErrors({});
-      try {
-        const response = await axios.post("https://paytmweb.vercel.app/api/v1/auth/Checkusername", {
-          username,
-        });
-        if(response.status==400){
-          setErrors({ serverError: "username already exists"});
-          
-        }
-       console.log("re:",response)
-        
-      }
-      
-        catch (error) {
-          if (error.response && error.response.data && error.response.data.message) {
-            setErrors({ server: error.response.data.message });
-          } else {
-            setErrors({ server: "Signup failed. Please try again." });
+  const backendHost = process.env.REACT_APP_BACKENDHOST;
+  console.log("backendhost:",backendHost);
+
+  const { coords } = useGeolocated({
+    positionOptions: { enableHighAccuracy: true },
+    userDecisionTimeout: 5000,
+  });
+
+  useEffect(() => {
+    if (coords) {
+      setLocation({ latitude: coords.latitude, longitude: coords.longitude });
+    }
+  }, [coords]);
+
+  useEffect(() => {
+    async function CheckUsernameAvailability() {
+      if (username.length > 2) {
+        setErrors({});
+        try {
+          const response = await axios.post(`${backendHost}api/v1/auth/Checkusername`, {
+            username,
+          });
+
+          if (response.status === 400) {
+            setErrors({ serverError: "Username already exists" });
           }
-        }}
-    
-  } Checkusernameavailable();},[username])
+        } catch (error) {
+          setErrors({ server: "Signup failed. Please try again." });
+        }
+      }
+    }
+    CheckUsernameAvailability();
+  }, [username]);
 
   const validateInputs = () => {
     let validationErrors = {};
     if (!firstname) validationErrors.firstname = "First name is required";
     if (!lastname) validationErrors.lastname = "Last name is required";
-    if (!phone) validationErrors.phone = "phone is required";
+    if (!mobileno) validationErrors.mobileno = "Phone number is required";
     if (!username) validationErrors.username = "Username is required";
     if (!password) validationErrors.password = "Password is required";
+    if (!location.latitude || !location.longitude)
+      validationErrors.location = "Location permission is required";
     setErrors(validationErrors);
     return Object.keys(validationErrors).length === 0;
   };
- 
-    
-   
 
   const handleSignup = async () => {
-    if(username.length>3){
     setErrors({});
+    console.log('Signup')
     if (!validateInputs()) return;
+    
 
     try {
-      const response = await axios.post("https://paytmweb.vercel.app/api/v1/auth/signup", {
+      const response = await axios.post(`${backendHost}api/v1/auth/signup`, {
         username,
         firstname,
         lastname,
         password,
-        phone,
-       
+        mobileno,
+        location, // Send location to backend
       });
 
       if (response.status === 201) {
         navigate("/signin");
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        setErrors({ server: error.response.data.message });
-      } else {
-        setErrors({ server: "Signup failed. Please try again." });
-      }
-    }}
-    else  setErrors({ server: "user must be more than 3 charector" })
+      setErrors({ server: "Signup failed. Please try again." });
+    }
   };
 
   return (
@@ -93,20 +98,22 @@ export default function Signup() {
 
           {errors.server && <div className="text-red-500 text-sm mb-2">{errors.server}</div>}
 
-          <InputBox onChange={(e) => setfirstname(e.target.value)} placeholder="John" label={"First Name"} />
+          <InputBox onChange={(e) => setFirstname(e.target.value)} placeholder="John" label={"First Name"} />
           {errors.firstname && <div className="text-red-500 text-sm">{errors.firstname}</div>}
 
-          <InputBox onChange={(e) => setlastname(e.target.value)} placeholder="Doe" label={"Last Name"} />
+          <InputBox onChange={(e) => setLastname(e.target.value)} placeholder="Doe" label={"Last Name"} />
           {errors.lastname && <div className="text-red-500 text-sm">{errors.lastname}</div>}
 
-          <InputBox onChange={(e) => setPhone(e.target.value)} placeholder="1112222333" label={"Moblie Number"} />
-          {errors.phone && <div className="text-red-500 text-sm">{errors.phone}</div>}
+          <InputBox onChange={(e) => setMobileno(e.target.value)} placeholder="1112222333" label={"Mobile Number"} />
+          {errors.mobileno && <div className="text-red-500 text-sm">{errors.mobileno}</div>}
 
-          <InputBox onChange={(e) => {setUsername(e.target.value) ;}} placeholder="user1" label={"Username"} />
+          <InputBox onChange={(e) => setUsername(e.target.value)} placeholder="user1" label={"Username"} />
           {errors.username && <div className="text-red-500 text-sm">{errors.username}</div>}
 
           <InputBox onChange={(e) => setPassword(e.target.value)} placeholder="password" label={"Password"} />
           {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
+
+          {errors.location && <div className="text-red-500 text-sm">{errors.location}</div>}
 
           <div className="pt-4">
             <Button onClick={handleSignup} label={"Sign up"} />

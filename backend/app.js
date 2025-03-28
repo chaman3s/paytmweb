@@ -10,6 +10,7 @@ app.use(cors({
     allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
     credentials: false // Set to false if you do not need to send credentials (cookies or HTTP authentication)
   }));
+app.options('*', cors());
 app.use(express.json());
 const connectDB = require('./config/db'); 
 
