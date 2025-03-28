@@ -14,17 +14,19 @@ export default function Signin() {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const backendHost = process.env.REACT_APP_BackendHost;
+    const backendHost = process.env.REACT_APP_BACKENDHOST;
 
     async function handleClick() {
+        console.log("kll");
         try {
-            const response = await axios.post(`${backendHost}auth/signin`, {
+            const response = await axios.post(`${backendHost}api/v1/auth/signin`, {
                 username,
                 password
             });
 
             if (response.status === 200) {
-                console.log(response);
+                console.log(response.data.token);
+
                 localStorage.setItem("token", response.data.token);
 
                 // Update username in Redux store
@@ -56,7 +58,7 @@ export default function Signin() {
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <div className="pt-4">
-                        <Button label={"Sign in"} onClick={handleClick} />
+                        <Button label={"Sign in"} clk={()=>handleClick()} />
                     </div>
                     <BottomWarning label={"Don't have an account?"} buttonText={"Sign up"} to={"/auth/signup"} />
                 </div>

@@ -7,13 +7,16 @@ const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(403).json({mrss:"check header"});
+        return res.status(403).json({mes:"check header"});
     }
 
     const token = authHeader.split(' ')[1];
+    console.log("split:",token);
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        console.log("go decoded");
+        let decoded = jwt.verify(token, JWT_SECRET);
+        
         console.log("userId:",decoded.userId);
         req.userId = decoded.userId;
         

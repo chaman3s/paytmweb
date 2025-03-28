@@ -1,20 +1,27 @@
-// const express = require('express');
-// const authMiddleware  = require('../middleware/index');
-// const { Account } = require("../models/Account");
-// const mongoose = require('mongoose');
-// const axios = require('axios');
-// // const db = require('@repo/db/client');
-// const { dataApiKey,dataApiUrl,Source} = require("../config/var");
-// const headers = {
-//     'Content-Type': 'application/json',
-//     'api-key': dataApiKey,
-//     'Accept': 'application/json'
-//   };
+const express = require('express');
+const {authMiddleware}  = require('../middleware/index');
+const Account= require("../models/Account");
+const mongoose = require('mongoose');
+const axios = require('axios');
+const router = express.Router();
 
-//   async function apiPostRequest(action, body) {
-//     const response = await axios.post(`${dataApiUrl}/${action}`, body, { headers });
-//     return response.data;
-//   }
+router.get("/balance",authMiddleware, async (req, res) => {
+    const userId = req.userId;
+    const existaccount = await Account.findOne({ userId: userId });
+    
+    console.log("existaccount: ", existaccount);
+    
+    // Check if documents are found
+    if (!existaccount) {
+        return res.status(411).send({ message: "No matching account found." });
+    }
+
+    res.status(200).json({
+        balance: existaccount.balance
+    })
+});
+
+ 
 //   router.post("/create-onramp-transaction", authMiddleware, async (req, res) => {
 //     const { provider, amount } = req.body;
 //     const user = req.user; // Extracted by authMiddleware
@@ -49,7 +56,7 @@
 //     }
 // });
 
-// const router = express.Router();
+// 
 // router.post('/onramp', authenticateToken, async (req, res) => {
 //     const { provider, amount } = req.body;
 
@@ -80,27 +87,6 @@
 //     }
 // });
 
-// router.get("/balance",authMiddleware, async (req, res) => {
-//     const userId = req.userId;
-//     const existaccount = await apiPostRequest('findOne', {
-//         dataSource: Source, 
-//         database: "paytmweb", 
-//         collection: "Account",
-//         filter: { userId: userId}
-            
-//     });
-    
-//     console.log("existaccount: ", existaccount);
-    
-//     // Check if documents are found
-//     if (!existaccount.document || existaccount.document.length === 0) {
-//         return res.status(411).send({ message: "No matching account found." });
-//     }
-
-//     res.status(200).json({
-//         balance: existaccount.document.balance
-//     })
-// });
 
 // router.post("/transfer", authMiddleware, async (req, res) => {
 //     console.log("Transfer request received1");
@@ -193,4 +179,4 @@
 // });
 
 
-// module.exports = router;
+module.exports = router;

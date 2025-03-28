@@ -12,7 +12,7 @@ export default function Layout({ children }) {
 
   return (
     <>
-    <Appbar />
+    <Appbar btn={true} />
     <div className="flex">
       <aside className="w-52 border-r border-slate-300 min-h-[90vh] mr-4 pt-28 font-bold">
         <nav>

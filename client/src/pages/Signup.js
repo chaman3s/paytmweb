@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useGeolocated } from "react-geolocated";
 
 export default function Signup() {
+  
  
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
@@ -44,6 +45,7 @@ export default function Signup() {
           if (response.status === 400) {
             setErrors({ serverError: "Username already exists" });
           }
+          console.log(response.status)
         } catch (error) {
           setErrors({ server: "Signup failed. Please try again." });
         }
@@ -116,7 +118,7 @@ export default function Signup() {
           {errors.location && <div className="text-red-500 text-sm">{errors.location}</div>}
 
           <div className="pt-4">
-            <Button onClick={handleSignup} label={"Sign up"} />
+            <Button clk={handleSignup} label={"Sign up"} />
           </div>
 
           <BottomWarning label={"Already have an account?"} buttonText={"Sign in"} to={"/signin"} />
