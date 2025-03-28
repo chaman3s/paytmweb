@@ -43,22 +43,35 @@ const Dashboard = () => {
       
     }
      
- async function getTransactions() {
-        
-    await axios.post(`${backendHost}api/v1/account/getTransactions`, {
-        headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-    }).then((result) => {
-        console.log("res:",result.data.message);
-        setTransactions(result.data.transctions);
-    }).catch((err) => {
-        console.log("error:",err)
-    });
+async function getTransactions() {
+        try {
+            const token = localStorage.getItem("token");
+    
+            if (!token) {
+                console.error("No token found in localStorage");
+                return;
+            }
+    
+            const response = await axios.post(
+                "http://localhost:8080/api/v1/account/getTransactions",
+                {}, // Empty body (if needed)
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+    
+            console.log("res:", response.data);
+            setTransactions(response.data.transctions);
+        } catch (err) {
+            console.error("Error:", err.response ? err.response.data : err.message);
+        }
+    }
     
     // Update the balance state with the value from the response
 
-}
+
 
     let addstyle = "w-[298px] rounded-[20px] border border-black/10 p-4";
     let data1 =[ {

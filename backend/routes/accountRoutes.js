@@ -22,22 +22,22 @@ router.get("/balance",authMiddleware, async (req, res) => {
     })
 });
 
-router.post("/getTransactions",authMiddleware, async (req, res) => {
-    const userId = req.userId;
-    const existaccount = await Account.findOne({ userId: userId });
-    
-    console.log("existaccount: ", existaccount);
-    
-    // Check if documents are found
+router.post("/getTransactions", authMiddleware, async (req, res) => {
+    if (!req.userId) {
+        return res.status(403).json({ message: "Unauthorized request, missing userId" });
+    }
+
+    const existaccount = await Account.findOne({ userId: req.userId });
+
     if (!existaccount) {
-        return res.status(411).send({ message: "No matching account found." });
+        return res.status(404).json({ message: "No matching account found." });
     }
 
     res.status(200).json({
-        transctions: existaccount.entries,
-        
-    })
+        transactions: existaccount.entries, // Corrected key name
+    });
 });
+
 
  
 //   router.post("/create-onramp-transaction", authMiddleware, async (req, res) => {
