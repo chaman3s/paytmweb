@@ -13,11 +13,14 @@ const Dashboard = () => {
 
     const [balance, setBalance] = useState(0);
     const [fdBalence, setFdBalence] = useState(0);
+    const [transctions, setTransactions] = useState([]);
+
     const [data,setData] = useState([]);
 
     useEffect(() => {
 
         checkWalletBalance()
+        getTransactions()
 
          // Call the function to fetch balance
     }, []);
@@ -48,8 +51,7 @@ const Dashboard = () => {
         },
     }).then((result) => {
         console.log("res:",result.data.message);
-        setBalance(result.data.balance*100);
-        setFdBalence(result.data.lockbalance*100);
+        setTransactions(result.data.transctions);
     }).catch((err) => {
         console.log("error:",err)
     });
@@ -77,7 +79,8 @@ const Dashboard = () => {
                 </div>
                 <div className="flex gap-[52px] w-full">
                     <BalanceCard style={addstyle} amount={balance} locked={fdBalence} />
-                    <OnRampTransactions style={addstyle} title={"Recent Two Transactions"} />
+                    
+                    <OnRampTransactions style={addstyle} title={"Recent Two Transactions"}  data={transctions}/>
                     {/* <OnRampTransactions style={"w-[298px]"} title={"Top Two Transactions"} /> */}
                     <BankCard style={addstyle} title={"Your Linked Bank"} />
 
