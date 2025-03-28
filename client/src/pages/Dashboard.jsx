@@ -12,16 +12,17 @@ const Dashboard = () => {
     console.log("backendhost:",backendHost);
 
     const [balance, setBalance] = useState(0);
+    const [fdBalence, setFdBalence] = useState(0);
     const [data,setData] = useState([]);
 
     useEffect(() => {
 
-       checkBalance()
-       ;
+        checkWalletBalance()
 
          // Call the function to fetch balance
     }, []);
-    async function checkBalance() {
+   
+ async function checkWalletBalance() {
         
             await axios.get(`${backendHost}api/v1/account/balance`, {
                 headers: {
@@ -29,15 +30,33 @@ const Dashboard = () => {
                 },
             }).then((result) => {
                 console.log("res:",result.data.message);
-                setBalance(result.data.balance);
+                setBalance(result.data.balance*100);
+                setFdBalence(result.data.lockbalance*100);
             }).catch((err) => {
                 console.log("error:",err)
             });
             
-
             // Update the balance state with the value from the response
       
     }
+     
+ async function getTransactions() {
+        
+    await axios.post(`${backendHost}api/v1/account/getTransactions`, {
+        headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+    }).then((result) => {
+        console.log("res:",result.data.message);
+        setBalance(result.data.balance*100);
+        setFdBalence(result.data.lockbalance*100);
+    }).catch((err) => {
+        console.log("error:",err)
+    });
+    
+    // Update the balance state with the value from the response
+
+}
 
     let addstyle = "w-[298px] rounded-[20px] border border-black/10 p-4";
     let data1 =[ {
@@ -57,7 +76,7 @@ const Dashboard = () => {
                     Dashboard
                 </div>
                 <div className="flex gap-[52px] w-full">
-                    <BalanceCard style={addstyle} amount={10000} locked={0} />
+                    <BalanceCard style={addstyle} amount={balance} locked={fdBalence} />
                     <OnRampTransactions style={addstyle} title={"Recent Two Transactions"} />
                     {/* <OnRampTransactions style={"w-[298px]"} title={"Top Two Transactions"} /> */}
                     <BankCard style={addstyle} title={"Your Linked Bank"} />
