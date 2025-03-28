@@ -2,28 +2,41 @@ const mongoose = require('mongoose');
 const { boolean } = require('zod');
 
 const UserSchema = new mongoose.Schema({
-  firstname: {
+  logo:{
+    type: String,
+  },
+  username: 
+  {
+   type: String,
+   unique: true
+   
+ },
+  fullname: {
     type: String,
     required: true,
   },
-  lastname: {
-    type: String,
-    
-  },
-  username: {
+ 
+  password: {
     type: String,
     required: true,
   },
-  password:{
+  upId:{
+    type: String,
+    required: true,
+    unique: true,
+  },
+  bankname:{
     type: String,
     required: true,
   },
-  email:{
-    type: String,
-    required: true,
-  },
-  number: { type: String, required: true, unique: true },
-  balance: { type: Number, default: 0 }
+Locations:{
+  type: String,
+},
+  mobileNo: { type: String, required: true, unique: true  ,default:""},
+contect:{ type:Array,
+  default: [],
+}
+  
 });
 
 module.exports = mongoose.model('User', UserSchema);

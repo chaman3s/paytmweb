@@ -37,7 +37,7 @@ const Dashboard = () => {
         "Full name":{vstyle: "w-[143px]",value:"Chaman Aggarwal"},
         "Upi ID":{style: "",value:Date.now()+".upi"},
         "Bank name":{vstyle:  "w-[122px]",value:"Dummy bank"},
-        "Phone no":{vstyle: "w-[122px]",value:"+91 9354862574"},
+        "mobile no":{vstyle: "w-[122px]",value:"+91 9354862574"},
         "Locations":{style: "",value:"Delhi,India"},
         "Button": {vstyle:"text-[7px] p-[3px]"},
 }]

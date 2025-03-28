@@ -15,7 +15,7 @@ export default function Transaction(){
         {
             "Value Date" :{hstyle: "w-[75px]",value:"21-01-2025"},
            "Post Date":{hstyle: "w-[75px]",value:"21-01-2025"},
-           "Payment Method": {style: "",value:Date.now()+"upi"},
+           "Payment Type": {style: "",value:Date.now()+"upi"},
             "Description":{style: "",value:"tarnfer to user1"},
             "Bank name":{style: "",value:" dummy bank"},
            "Amount": {vstyle: "text-green-500",value:"+1000 Cr"},
