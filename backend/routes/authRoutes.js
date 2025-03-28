@@ -80,7 +80,7 @@ router.post('/Checkusername', async (req, res) =>{
     }
     const {username} = req.body;
 
-    const existingUsername = await Users.findOne({ username: username });
+    const existingUsername = await User.findOne({ username: username });
       if(existingUsername){
         return  res.status(400).send({ message:"username already  exists"});
 
