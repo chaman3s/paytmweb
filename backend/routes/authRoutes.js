@@ -190,13 +190,20 @@ router.post("/signin", async (req, res) => {
         const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
         const  referralCodeOfUser= req.session.referralCode;
         if(referralCodeOfUser){
+            conso
         delete req.session.referralCode;
         if(makeConnections(referralCodeOfUser,userId,res)){
-        return res.status(200).json({
-            message: "User successfully logged in",
-            token
-        });}
+            return res.status(200).json({
+                message: "User successfully make connections",
+            })
+        }
     }
+            return res.status(200).json({
+                message: "User successfully logged in",
+                token
+            });
+      
+    
     } catch (err) {
         console.error("Signin Error:", err);
         return res.status(500).json({ message: "Internal server error", error: err.message });
