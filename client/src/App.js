@@ -13,10 +13,11 @@ import Transactions from "./pages/userapp/Transaction.jsx";
 import Transfer from "./pages/userapp/Transfer.jsx";
 import Layout from "./pages/userapp/Layout.js";
 import AuthLayout from "./AuthLayout.js";
+import Refferal from "./pages/userapp/Refferal.jsx";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem("token");
+  const isAuthenticated = true;
   console.log("isAuthenticated", localStorage.getItem("token"))
   return isAuthenticated ? children : <Navigate to="auth/signin" replace />;
 };
@@ -40,6 +41,11 @@ function App() {
           <Route path="p2p" element={<P2p />} />
           <Route path="transactions" element={<Transactions />} />
         </Route>
+        <Route path="/friends" element={<AuthLayout />}>
+          <Route path="invite" element={<Refferal/>} />
+        </Route>
+        
+        
 
         {/* Redirect unknown routes */}
         <Route path="*" element={<Navigate to="/" />} />

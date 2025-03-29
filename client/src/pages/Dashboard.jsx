@@ -13,12 +13,14 @@ const Dashboard = () => {
     const token = localStorage.getItem("token");
 
     const [balance, setBalance] = useState(0);
+    const [bankBalance, setBankBalance] = useState(undefined);
     const [fdBalence, setFdBalence] = useState(0);
     const [transctions, setTransactions] = useState([]);
 
     const [data,setData] = useState([]);
 
     useEffect(() => {
+     
         let tk = token
         checkWalletBalance()
         if(tk==token) console.log("same token")
@@ -26,7 +28,8 @@ const Dashboard = () => {
         getTransactions()
 
          // Call the function to fetch balance
-    }, []);
+    }, [bankBalance]);
+    
    
  async function checkWalletBalance() {
         
@@ -47,14 +50,14 @@ const Dashboard = () => {
     }
      
 async function getTransactions() {
-        let token= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2U1ODYzOTg0MjVjNDY4MjMyNDIxZTEiLCJpYXQiOjE3NDMxNTM1NjAsImV4cCI6MTc0Mzc1ODM2MH0.6-bJN8KtsvdezQSjXu0mZdDisCiI8LfQhVvDOXDlhcA"
+        // let token= "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2U1ODYzOTg0MjVjNDY4MjMyNDIxZTEiLCJpYXQiOjE3NDMxNTM1NjAsImV4cCI6MTc0Mzc1ODM2MH0.6-bJN8KtsvdezQSjXu0mZdDisCiI8LfQhVvDOXDlhcA"
             if (!token) {
                 console.error("No token found in localStorage");
                 return;
             }
     
             const response = await axios.get(
-                "http://localhost:8080/api/v1/account/getTransactions",{
+                backendHost+"api/v1/account/getTransactions",{
                 // Empty body (if needed)
                 headers: {
                     Authorization: "Bearer " + token,
@@ -70,6 +73,37 @@ async function getTransactions() {
            
        
     }
+    function getBankbalance(){
+        console.log("getBankbalance")
+        if (!localStorage.getItem("bankBalance")) {
+            localStorage.setItem("bankBalance",10000)
+            setBankBalance(10000)
+            
+        } else {
+            setBankBalance(localStorage.getItem("bankBalance"))
+        }
+    }
+  async function getNviteLink() {
+    if (!token) {
+        console.error("No token found in localStorage");
+        return;
+    }
+
+    const response = await axios.get(
+        backendHost+"api/v1/account/getTransactions",{
+        // Empty body (if needed)
+        headers: {
+            Authorization: "Bearer " + token,
+        },}
+    ).then((result) => {
+        console.log("res transctions:",result);
+        setTransactions(result.data.transactions);
+        
+    }).catch((err) => {
+        console.log("error:",err)
+    });
+    
+  }
     
     // Update the balance state with the value from the response
 
@@ -95,13 +129,13 @@ async function getTransactions() {
                 <div className="flex gap-[52px] w-full">
                     <BalanceCard style={addstyle} amount={balance} locked={fdBalence} />
                     
-                    <OnRampTransactions style={addstyle} title={"Recent Two Transactions"}  data={transctions}/>
-                    {/* <OnRampTransactions style={"w-[298px]"} title={"Top Two Transactions"} /> */}
-                    <BankCard style={addstyle} title={"Your Linked Bank"} />
+                    <OnRampTransactions style={addstyle} title={"Recent Two Transactions"}  data={transctions} />
+                        {console.log("bank---balence:",bankBalance)}
+                    <BankCard style={addstyle} title={"Your Linked Bank"}  bal={bankBalance} clk={getBankbalance}/>
 
                 </div>
                 <div className="mt-10 ">
-                    <TableCard opt={data} style={"rounded-[20px] border border-black/10 p-4 h-[32vh]" } addoptions={{"logo":true,"button":true}} />
+                    <TableCard opt={data} style={"rounded-[20px] border border-black/10 p-4 h-[32vh]" } addoptions={{"logo":true,"button":true}}  errmessge={"!oops you do not  have any friend. Send money to add friend"} nvite={"https://example.com/invite"}/>
                 </div>
             </div>
         </div>

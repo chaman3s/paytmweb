@@ -9,69 +9,16 @@ const bcrypt = require('bcryptjs');
 const { JWT_SECRET,dataApiKey,dataApiUrl,database,Source} = require("../config/var");
 const authMiddleware = require('../middleware/index');
 const mongoose = require('mongoose');
-// const db = require('@repo/db/client'); 
-const headers = {
-    'Content-Type': 'application/json',
-    'api-key': dataApiKey,
-    'Accept': 'application/json'
-  };
+const {makeConnections} = require("../utils/index")
 
-  async function apiPostRequest(action, body) {
-    const response = await axios.post(`${dataApiUrl}/${action}`, body, { headers });
-    return response.data;
-  }
+// const db = require('@repo/db/client'); 
+
+
+
 const usersnmeobj= zod.object({
     username:zod.string()
 })
-router.post('/PayWebUserAuth', async (req, res) => {
-    const { phone, password } = req.body;
 
-    if (!phone || !password) {
-        return res.status(400).json({ message: 'Phone number and password are required.' });
-    }
-
-    try {
-        const existingUser = await db.user.findFirst({ where: { number: phone } });
-
-        if (existingUser) {
-            // Compare passwords
-            const passwordValidation = await bcrypt.compare(password, existingUser.password);
-
-            if (passwordValidation) {
-                const token = generateToken(existingUser);
-                return res.status(200).json({
-                    id: existingUser.id,
-                    name: existingUser.name,
-                    email: existingUser.number,
-                    token
-                });
-            } else {
-                return res.status(401).json({ message: 'Invalid credentials.' });
-            }
-        }
-
-        // If user doesn't exist, create a new user
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await db.user.create({
-            data: {
-                number: phone,
-                password: hashedPassword
-            }
-        });
-
-        const token = generateToken(newUser);
-
-        res.status(201).json({
-            id: newUser.id,
-            name: newUser.name,
-            email: newUser.number,
-            token
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error.' });
-    }
-});
 router.post('/Checkusername', async (req, res) =>{
     if(!req.body){return res.status(411).send({message:"pls send vaild data"});}
     const {success} =usersnmeobj.safeParse(req.body);
@@ -180,7 +127,7 @@ router.post("/signup", async (req, res) => {
 });
 
 
-module.exports = router;
+
 
 const signinBody = zod.object({
     username: zod.string(),
@@ -241,18 +188,21 @@ router.post("/signin", async (req, res) => {
 
         // Generate JWT token
         const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
-
+        const  referralCodeOfUser= req.session.referralCode;
+        if(referralCodeOfUser){
+        delete req.session.referralCode;
+        if(makeConnections(referralCodeOfUser,userId,res)){
         return res.status(200).json({
             message: "User successfully logged in",
             token
-        });
-
+        });}
+    }
     } catch (err) {
         console.error("Signin Error:", err);
         return res.status(500).json({ message: "Internal server error", error: err.message });
     }
 });
-
+module.exports = router;
 
 
 // const updateBody = zod.object({

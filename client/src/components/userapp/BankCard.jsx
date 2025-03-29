@@ -1,6 +1,6 @@
 import {Card} from "../Card";
 import Button from "../Button";
-export const BankCard = ({ name,title,style}) => {
+export const BankCard = ({ name,title,style ,bal,clk}) => {
   if (false) {
     return (
     
@@ -22,7 +22,7 @@ export const BankCard = ({ name,title,style}) => {
                 {Date.now()}
               </div>
             </div>
-            <div className="flex flex-col justify-center"><Button label="Check"/></div>
+            <div className="flex flex-col justify-center">{(bal)?(<div>{"Rs " +bal}</div>):(<Button label="Check" clk={clk}/>)}</div>
           </div>
         )}
       </div>

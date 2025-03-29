@@ -1,5 +1,17 @@
-{
+{ 
+  "name": "fullpayment",
+
   "dependencies": {
+    "express-rate-limit": "^7.5.0",
     "install": "^0.13.0"
+  },
+  "bin": {
+    "bstart": "./bin/bstart",
+    "fstart": "./bin/fstart"
+  },
+  "scripts": {
+    "bstart":"cd backend &&  nodemon app.js",
+    "fstart":"cd client && nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

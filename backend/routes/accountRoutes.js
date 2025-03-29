@@ -22,7 +22,7 @@ router.get("/balance",authMiddleware, async (req, res) => {
     })
 });
 
-router.get("/getTransactions", authMiddleware, async (req, res) => {
+router.post("/getTransactions", authMiddleware, async (req, res) => {
     if (!req.userId) {
         return res.status(403).json({ message: "Unauthorized request, missing userId" });
     }
