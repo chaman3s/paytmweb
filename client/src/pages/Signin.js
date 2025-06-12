@@ -17,9 +17,10 @@ export default function Signin() {
     const backendHost = process.env.REACT_APP_BACKENDHOST;
 
     async function handleClick() {
-        console.log("kll");
+        const url = `${backendHost}api/v1/auth/signin`
+        console.log("kll:",url);
         try {
-            const response = await axios.post(`${backendHost}api/v1/auth/signin`, {
+            const response = await axios.post(url, {
                 username,
                 password
             });

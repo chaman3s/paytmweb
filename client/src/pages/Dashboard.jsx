@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BalanceCard } from "../components/userapp/Balancecard";
 import { Users } from "../components/Users";
 import { OnRampTransactions } from "../components/userapp/OnRampTransactions";
@@ -16,7 +16,8 @@ const Dashboard = () => {
     const [bankBalance, setBankBalance] = useState(undefined);
     const [fdBalence, setFdBalence] = useState(0);
     const [transctions, setTransactions] = useState([]);
-
+    const [accountsNumber, setAccountsNumber] = useState(0);
+    const Link = useRef(null);
     const [data,setData] = useState([]);
 
     useEffect(() => {
@@ -26,17 +27,55 @@ const Dashboard = () => {
         if(tk==token) console.log("same token")
         else console.log("no taoken mathch")
         getTransactions()
+        getBankAccountNumber()
+        getNviteLink()
+        getConnection()
 
          // Call the function to fetch balance
     }, [bankBalance]);
+async function  getConnection() {
+    if (!token) {
+        console.error("No token found in localStorage");
+        return;
+    }
+    console.log("link: " +backendHost+"api/v1/network/getRefferlink");
+    const response = await axios.get(
+        backendHost+"api/v1/network/getRefferlink",{
+        // Empty body (if needed)
+        headers: {
+            Authorization: "Bearer " + token,
+        },}
+    ).then((result) => {
+        console.log("res link:",result.data.link);
+        Link.current = result.data.link;
+        console.log("ref link:",Link.current)
+        
+    }).catch((err) => {
+        console.log("error:",err)
+    });
+}
     
-   
+async function  getBankAccountNumber(){
+        await axios.post(`${backendHost}api/v1/account/getBankAccountNumber`, {
+            headers: {
+                Authorization: "Bearer " + token,
+            },
+        }).then((result) => {
+            console.log("res bank accountNumber:",result);
+            setAccountsNumber(result.data.accountNumber);
+        }).catch((err) => {
+            console.log("error:",err)
+        });
+        // Update the balance state with the value from the response
+    }
+
  async function checkWalletBalance() {
         
             await axios.get(`${backendHost}api/v1/account/balance`, {
                 headers: {
                     Authorization: "Bearer " + token,
                 },
+               
             }).then((result) => {
                 console.log("res wallwts:",result);
                 setBalance(result.data.balance*100);
@@ -56,19 +95,28 @@ async function getTransactions() {
                 return;
             }
     
-            const response = await axios.get(
-                backendHost+"api/v1/account/getTransactions",{
+            await axios.post(
+                backendHost+"api/v1/account/get",{
                 // Empty body (if needed)
                 headers: {
                     Authorization: "Bearer " + token,
                 },}
-            ).then((result) => {
-                console.log("res transctions:",result);
-                setTransactions(result.data.transactions);
+            ).then(function(response) {
                 
-            }).catch((err) => {
+                console.log("res transctions:",response);
+                setTransactions(response.data.transactions);
+            })
+            .catch(function(err) {
                 console.log("error:",err)
-            });
+            })
+            
+            // ).then((result) => {
+            //     console.log("res transctions:",result);
+            //     setTransactions(result.data.transactions);
+                
+            // }).catch((err) => {
+            //     console.log("error:",err)
+            // });
             
            
        
@@ -88,16 +136,17 @@ async function getTransactions() {
         console.error("No token found in localStorage");
         return;
     }
-
+    console.log("link: " +backendHost+"api/v1/network/getRefferlink");
     const response = await axios.get(
-        backendHost+"api/v1/account/getTransactions",{
+        backendHost+"api/v1/network/getRefferlink",{
         // Empty body (if needed)
         headers: {
             Authorization: "Bearer " + token,
         },}
     ).then((result) => {
-        console.log("res transctions:",result);
-        setTransactions(result.data.transactions);
+        console.log("res link:",result.data.link);
+        Link.current = result.data.link;
+        console.log("ref link:",Link.current)
         
     }).catch((err) => {
         console.log("error:",err)
@@ -111,13 +160,10 @@ async function getTransactions() {
 
     let addstyle = "w-[298px] rounded-[20px] border border-black/10 p-4";
     let data1 =[ {
-        "Logo": {value:"U",vstyle:"bg-red ml-[13px]" },
-        "Userame":{hstyle: "w-[8px]",value:"User1"},
+        "Logo": {value:"U",vstyle:"bg-red ml-[15px]" },
+        "Userame":{hstyle: "w-[8px]",value:"User1",vstyle:"pl-[20px]"},
         "Full name":{vstyle: "w-[143px]",value:"Chaman Aggarwal"},
         "Upi ID":{style: "",value:Date.now()+".upi"},
-        "Bank name":{vstyle:  "w-[122px]",value:"Dummy bank"},
-        "mobile no":{vstyle: "w-[122px]",value:"+91 9354862574"},
-        "Locations":{style: "",value:"Delhi,India"},
         "Button": {vstyle:"text-[7px] p-[3px]"},
 }]
     return (
@@ -131,11 +177,11 @@ async function getTransactions() {
                     
                     <OnRampTransactions style={addstyle} title={"Recent Two Transactions"}  data={transctions} />
                         {console.log("bank---balence:",bankBalance)}
-                    <BankCard style={addstyle} title={"Your Linked Bank"}  bal={bankBalance} clk={getBankbalance}/>
+                    <BankCard style={addstyle} title={"Your Linked Bank"}  bal={bankBalance} clk={getBankbalance} acn={accountsNumber}/>
 
                 </div>
                 <div className="mt-10 ">
-                    <TableCard opt={data} style={"rounded-[20px] border border-black/10 p-4 h-[32vh]" } addoptions={{"logo":true,"button":true}}  errmessge={"!oops you do not  have any friend. Send money to add friend"} nvite={"https://example.com/invite"}/>
+                    <TableCard opt={data1} style={"rounded-[20px] border border-black/10 p-4 h-[32vh]" } addoptions={{"logo":true,"button":true}}  errmessge={"!oops you do not  have any friend. Send money to add friend"} nvite={Link.current}/>
                 </div>
             </div>
         </div>

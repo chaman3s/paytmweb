@@ -11,7 +11,7 @@
   },
   "scripts": {
     "bstart":"cd backend &&  nodemon app.js",
-    "fstart":"cd client && nodemon app.js",
+    "fstart":"cd client && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

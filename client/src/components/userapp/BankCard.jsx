@@ -1,6 +1,6 @@
 import {Card} from "../Card";
 import Button from "../Button";
-export const BankCard = ({ name,title,style ,bal,clk}) => {
+export const BankCard = ({ name,title,style ,bal,clk,acn}) => {
   if (false) {
     return (
     
@@ -19,7 +19,7 @@ export const BankCard = ({ name,title,style ,bal,clk}) => {
             <div>
               <div className="text-sm">Dummy bank</div>
               <div className="text-slate-600 text-xs">
-                {Date.now()}
+                {(acn)?acn:Date.now()}
               </div>
             </div>
             <div className="flex flex-col justify-center">{(bal)?(<div>{"Rs " +bal}</div>):(<Button label="Check" clk={clk}/>)}</div>

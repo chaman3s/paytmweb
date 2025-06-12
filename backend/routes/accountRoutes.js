@@ -37,6 +37,20 @@ router.post("/getTransactions", authMiddleware, async (req, res) => {
         transactions: existaccount.entries, // Corrected key name
     });
 });
+router.post('/getBankAccountNumber' ,authMiddleware, async (req, res) => {
+    if (!req.userId) {
+        return res.status(403).json({ message: "Unauthorized request, missing userId" });
+    }
+
+    const existaccount = await Account.findOne({ userId: req.userId });
+
+    if (!existaccount) {
+        return res.status(404).json({ message: "No matching account found." });
+    }
+    res.status(200).json({
+        accountNumber: existaccount.account, // Corrected key name
+    });
+});
 
 
  

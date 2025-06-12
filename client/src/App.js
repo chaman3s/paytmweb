@@ -17,7 +17,7 @@ import Refferal from "./pages/userapp/Refferal.jsx";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = true;
+  const isAuthenticated = localStorage.getItem("token");
   console.log("isAuthenticated", localStorage.getItem("token"))
   return isAuthenticated ? children : <Navigate to="auth/signin" replace />;
 };

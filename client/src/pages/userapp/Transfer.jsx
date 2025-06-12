@@ -10,7 +10,8 @@ function Transfer() {
     
     const [balance, setBalance] = useState({ amount: 0, locked: 0 });
     const [transactions, setTransactions] = useState([]);
-    let addstyle = "rounded-[20px] border border-black/10 p-4";
+    let addstyle ={com:"rounded-[20px] border border-black/10 p-4" ,div:"overflow-y-scroll h-[200px]"}
+
     useEffect(() => {
         axios.get(`http://localhost:5000/api/user/balance`, {
             headers: { Authorization: `Bearer ${token}` }

@@ -1,14 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../Btn";
 import { Card } from "../Card";
 import { Center } from "../Center";
 import { TextInput } from "../TextInput";
+import {useSelector} from "react-redux"
 
 export function SendCard() {
+  
     const [number, setNumber] = useState("");
     const [amount, setAmount] = useState("");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const numberFromRedux = useSelector((state) => state.user.Number);
+  
+  
+   useEffect(() => {
+     if (numberFromRedux) {
+      setNumber(numberFromRedux);
+      console.log("num: ",numberFromRedux)
+      console.log("nub: ",number)}
+    }
+  , [numberFromRedux]);
     let addstyle = "rounded-[20px] border border-black/10 p-4";
     const handleTransfer = async () => {
         if (!number || !amount || isNaN(Number(amount)) || Number(amount) <= 0) {
@@ -59,12 +71,14 @@ export function SendCard() {
                         <TextInput 
                             placeholder="Number" 
                             label="Number" 
-                            onChange={(e) => setNumber(e.target.value)} 
+                            val={number}
+                            onCh={(v) => setNumber(v)} 
                         />
                         <TextInput 
                             placeholder="Amount" 
-                            label="Amount" 
-                            onChange={(e) => setAmount(e.target.value)} 
+                            label="Amount"
+                            val={amount}
+                            onCh={(v) => setAmount(v)} 
                         />
                         {message && <p className="text-red-500 text-sm mt-2">{message}</p>}
                         <div className="pt-4 flex justify-center">

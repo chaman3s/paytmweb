@@ -17,7 +17,7 @@ const limiter = rateLimit({
     headers: true,
 });
 // Redirect to login or signup page as requ
-router.get('/getRefferlink', authMiddleware, limiter, async (req, res) => {
+router.get('/getRefferlink', authMiddleware, async (req, res) => {
     if (!req.userId) {
         return res.status(403).json({ message: "Unauthorized request, missing userId" });
     }
@@ -63,5 +63,31 @@ router.get("/invite",authRefferalMiddleware,async(req, res)=>{
 
     // or /signup if that's your flow
 });
+router.post("/getConnection",authMiddleware,async(req, res)=>{
+       if (!req.userId) {
+        return res.status(403).json({ message: "Unauthorized request, missing userId" });
+    }
+
+    try {
+        let existReffer = await ConnectModel.findOne({ userId: req.userId });
+        if (!existReffer) {
+            // Generate a unique referral code
+            const refferalCode = `REF-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+
+            existReffer = new ConnectModel({
+                userId: req.userId,
+                userRefferenceCode: refferalCode,
+            });
+            res.status(200).json({ message: "No connection found" });
+        }
+        else{
+            
+        }
+
+}
+catch(error){
+
+}
+})
 
 module.exports = router;
