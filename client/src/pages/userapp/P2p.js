@@ -15,73 +15,7 @@ export default function() {
        "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
        "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
 
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},{
-    "Logo": {value:"U",vstyle:"bg-red ml-[13px] mr-[10px]" },
-    "Userame":{hstyle: "w-[8px]",value:"User1"},
-    "Full name":{vstyle: "w-[161px]",value:"Chaman Aggarwal"},
-    "Phone no":{vstyle: "w-[160px]",value:"+91 9354862574"},
-
-},]
+}]
 function handleclick(number){
     console.log(number["Phone no"].value.split(" ")[1])
 

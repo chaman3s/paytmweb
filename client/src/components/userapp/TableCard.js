@@ -48,7 +48,7 @@ export const TableCard = ({ name, title, style, opt, addoptions, errmessge ,nvit
       <div className="pt-2 overflow-hidden ">
         <div>
         <table className="w-full border-collapse border border-gray-300 overflow-hidden">
-          <thead className="bg-gray-100">
+          {/* <thead className="bg-gray-100">
             <tr>
               {Object.keys(opt[0]).map((key, index) => (
                 <th key={index} className={"w-16 p-2 border border-gray-300 " + (opt[0][key]["hstyle"] || "")}>
@@ -56,28 +56,28 @@ export const TableCard = ({ name, title, style, opt, addoptions, errmessge ,nvit
                 </th>
               ))}
             </tr>
-          </thead>
+          </thead> */}
           <tbody className="overflow-hidden">
             {opt.map((group, groupIndex) => (
-              <tr className={`border border-gray-300 cursor-pointer hover:bg-sky-700 ${isTableIteamClickAble.bool ? "cursor-pointer " : ""} `} onClick={isTableIteamClickAble.bool ? () => isTableIteamClickAble.fun(group) : undefined} key={groupIndex}>
+              <tr className={`border border-gray-300  hover:border-0 cursor-pointer hover:bg-sky-700  hover:border-sky-700 ${isTableIteamClickAble.bool ? "cursor-pointer " : ""} `} onClick={isTableIteamClickAble.bool ? () => isTableIteamClickAble.fun(group) : undefined} key={groupIndex}>
                 {Object.keys(group).map((key, keyIndex) => (
                   key === "Logo" ? (
-                    <td key={`${groupIndex}-${keyIndex}`} className="pl-[20px] border border-gray-300 b" >
+                    <td key={`${groupIndex}-${keyIndex}`} className="pl-[20px] border border-gray-300  hover:border-sky-700" >
                       <div className={"rounded-full h-8 w-8 bg-slate-200 flex justify-center items-center " + (group[key].vstyle || "")}>
                         {group[key].value}
                       </div> 
                     </td>
                   ) : key === "Button" ? (
-                    <td key={`${groupIndex}-${keyIndex}`} className="p-2 border border-gray-300 border-0">
+                    <td key={`${groupIndex}-${keyIndex}`} className="p-2 border border-gray-300   hover:border-0 ">
                       <Button label="Send Money" style={"text-[9px] p-[3px] mt-[6px] " + (group[key].vstyle || "")}  clk={()=>handleSendButton("9354861574")}/>
                     </td>
                   ) : key === "Upi ID"?  (
-                    <td key={`${groupIndex}-${keyIndex}`} className={`p-2 border border-gray-300  text-center cursor-pointer ${group[key].vstyle || ""} ${isTableIteamClickAble.bool?" cursor-pointer":""}` }>
+                    <td key={`${groupIndex}-${keyIndex}`} className={`p-2 border border-gray-300  text-center cursor-pointer  hover:border-0  ${group[key].vstyle || ""} ${isTableIteamClickAble.bool?" cursor-pointer":""}` }>
                       {group[key].value}
                       <img src={(tick!==null && tick==`${groupIndex}-${keyIndex}`)?tk:cp} className="inline w-[15px] h-[15px] ml-2" onClick={()=>{setTick(`${groupIndex}-${keyIndex}`); handleCopy(group[key].value); setTimeout(() => setTick(null), 5000); }} />
                     </td>
                   ):(
-                    <td key={`${groupIndex}-${keyIndex}`} className={`p-2 border border-gray-300 text-center  ${group[key].vstyle || ""}`}>
+                    <td key={`${groupIndex}-${keyIndex}`} className={`p-2 border border-gray-300 text-center  hover:border-0   ${group[key].vstyle || ""}`}>
                       {group[key].value}
                     </td>
                   )

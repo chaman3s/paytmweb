@@ -9,7 +9,7 @@
 /backend/.env
 # testing
 /coverage
-
+node_modules
 # production
 /client/build
 

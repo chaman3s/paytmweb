@@ -5,50 +5,55 @@ const ConnectModel = require("../models/Connect");
 const {authMiddleware,authRefferalMiddleware,} = require("../middleware/index");
 const NodeCache = require("node-cache");
 const User = require("../models/User");
-async function  makeConnections(referralCodeOfUser, userId,res) {
+async function makeConnections(referralCodeOfUser, userId) {
     try {
         if (!userId) {
-            return res.status(403).json({ message: "Unauthorized request, missing userId" });
+            return { status: 403, message: "Unauthorized request, missing userId" };
         }
-    
-        let existReffer = await ConnectModel.findOne({ userId: userId });
-    
-        if (!existReffer) {
-            // Generate a unique referral code
-            let refferalCode = `REF-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
-    
-            existReffer = new ConnectModel({
-                userId: userId,
-                userRefferenceCode: refferalCode,
-                Connection: referralCodeOfUser ? [referralCodeOfUser] : []
+
+        let userConnection = await ConnectModel.findOne({ userId });
+
+        if (!userConnection) {
+            const newReferralCode = `REF-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+            userConnection = new ConnectModel({
+                userId,
+                userRefferenceCode: newReferralCode,
+                Connection: referralCodeOfUser ? [referralCodeOfUser] : [],
             });
-            await existReffer.save();
-        } else if (referralCodeOfUser && referralCodeOfUser !== existReffer.userRefferenceCode) {
-            let arr =existReffer.Connection 
-            arr.push (userRefferenceCode)
-            await ConnectModel.updateOne(
-                { userId: userId },
-                { $addToSet: { Connection: arr } } // Ensures unique values
-            );
+            await userConnection.save();
         } else {
-            return res.status(400).json({ message: "Something went wrong" });
-        }
-    
-        let existRefferToUser = await ConnectModel.findOne({ userRefferenceCode: referralCodeOfUser });
-        let arr= existRefferToUser.Connection
-        arr.push(existReffer.userRefferenceCode)
-        if (existRefferToUser) {
+            if (
+                !referralCodeOfUser ||
+                referralCodeOfUser === userConnection.userRefferenceCode ||
+                userConnection.Connection.includes(referralCodeOfUser)
+            ) {
+                return { status: 400, message: "Invalid or duplicate referral" };
+            }
+
             await ConnectModel.updateOne(
-                { userRefferenceCode: referralCodeOfUser },
-                { $addToSet: { Connection: arr } } // Ensures uniqueness
+                { userId },
+                { $addToSet: { Connection: referralCodeOfUser } }
             );
         }
-    
-        return res.status(200).json({ message: "Referral processed successfully" });
+
+        if (referralCodeOfUser) {
+            const friend = await ConnectModel.findOne({ userRefferenceCode: referralCodeOfUser });
+            if (friend) {
+                await ConnectModel.updateOne(
+                    { userRefferenceCode: referralCodeOfUser },
+                    { $addToSet: { Connection: userConnection.userRefferenceCode } }
+                );
+            }
+        }
+
+        return { status: 200, message: "Referral processed successfully" };
     } catch (error) {
         console.error("Error inviting friend:", error);
-        res.status(500).json({ message: "Internal Server Error" });
+        return { status: 500, message: "Internal Server Error" };
     }
-    
 }
+
+
+
+
 module.exports ={makeConnections}

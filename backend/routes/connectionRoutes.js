@@ -55,39 +55,79 @@ router.get('/getRefferlink', authMiddleware, async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
-router.get("/invite",authRefferalMiddleware,async(req, res)=>{
-    const  referralCodeOfUser= req.session.referralCode;
-    delete req.session.referralCode;
-    if(makeConnections(referralCodeOfUser,req.userId,res)) res.status(200).json({ message:"successfully Connect" });
-    // or /signup if that's your flow
+router.get("/invite", authRefferalMiddleware, async (req, res) => {
+    try {
+        const referralCodeOfUser = req.session.referralCode;
+        console.log("userRe:", referralCodeOfUser);
+        delete req.session.referralCode;
 
-    // or /signup if that's your flow
+        // ✅ Await the result and DO NOT pass res
+        const result = await makeConnections(referralCodeOfUser, req.userId);
+
+        return res.status(result.status).json({ message: result.message });
+    } catch (err) {
+        console.error("Route error:", err);
+        return res.status(500).json({ message: "Something went wrong" });
+    }
 });
-router.post("/getConnection",authMiddleware,async(req, res)=>{
-       if (!req.userId) {
+router.post("/getConnection", authMiddleware, async (req, res) => {
+    console.log("ok1");
+    if (!req.userId) {
         return res.status(403).json({ message: "Unauthorized request, missing userId" });
     }
 
+    console.log("ok2");
     try {
-        let existReffer = await ConnectModel.findOne({ userId: req.userId });
-        if (!existReffer) {
-            // Generate a unique referral code
-            const refferalCode = `REF-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+        const existReffer = await ConnectModel.findOne({ userId: req.userId });
+        console.log("ok3");
 
-            existReffer = new ConnectModel({
+        if (!existReffer) {
+            console.log("ok4");
+            const refferalCode = `REF-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+            const newConnection = new ConnectModel({
                 userId: req.userId,
                 userRefferenceCode: refferalCode,
+                Connection: []
             });
-            res.status(200).json({ message: "No connection found" });
-        }
-        else{
-            
+            await newConnection.save();
+            return res.status(200).json({ message: "No connection found" });
         }
 
-}
-catch(error){
+        console.log("ok5");
+        if (!existReffer.Connection || existReffer.Connection.length === 0) {
+            console.log("ok6");
+            return res.status(200).json({ message: "No connection found" });
+        }
 
-}
-})
+        console.log("ok7");
+        const referralCodes = existReffer.Connection;
+        console.log("ok8:", referralCodes);
+
+        // Step 1: Find friends' userIds from ConnectModel
+        const friendConnections = await ConnectModel.find({
+            userRefferenceCode: { $in: referralCodes }
+        }).select('userId');
+
+        const friendUserIds = friendConnections.map(fc => fc.userId);
+        console.log("Friend UserIds:", friendUserIds);
+
+        if (friendUserIds.length === 0) {
+            return res.status(200).json({ message: "No user data found for connections" });
+        }
+
+        // Step 2: Fetch user details using userIds
+        const friends = await User.find({
+            _id: { $in: friendUserIds }
+        }).select('logo username fullname upId');
+
+        console.log("ok9:", friends);
+        return res.status(200).json(friends);
+
+    } catch (error) {
+        console.error("Error fetching connections:", error);
+        return res.status(500).json({ message: "Server error" });
+    }
+});
+
 
 module.exports = router;

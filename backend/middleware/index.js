@@ -44,7 +44,8 @@ const authRefferalMiddleware = (req, res, next) => {
         return res.status(403).json({ message: "Missing or invalid Invite code header" });
     }
     let authHeader
-    if (req.headers.Authorization){
+    console.log("Auth middl:",req.headers)
+    if (req.headers.Authorization || req.headers.authorization){
         console.log("Auth middl")
         authHeader = req.headers.authorization;
      }
@@ -78,6 +79,7 @@ const authRefferalMiddleware = (req, res, next) => {
         console.log("Decoded userId:", decoded.userId);
 
         req.userId = decoded.userId;
+        console.log("ok")
         next();
     } catch (err) {
         console.error("JWT verification failed:", err);

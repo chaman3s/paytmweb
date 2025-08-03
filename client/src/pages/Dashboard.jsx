@@ -19,41 +19,20 @@ const Dashboard = () => {
     const [accountsNumber, setAccountsNumber] = useState(0);
     const Link = useRef(null);
     const [data,setData] = useState([]);
+    const [friendData,setFriendData] = useState([])
 
     useEffect(() => {
      
         let tk = token
-        checkWalletBalance()
-        if(tk==token) console.log("same token")
-        else console.log("no taoken mathch")
-        getTransactions()
-        getBankAccountNumber()
-        getNviteLink()
+        // checkWalletBalance()
+        // if(tk==token) console.log("same token")
+        // else console.log("no taoken mathch")
+        // getTransactions()
+        // getBankAccountNumber()
+        // getNviteLink()
         getConnection()
-
          // Call the function to fetch balance
-    }, [bankBalance]);
-async function  getConnection() {
-    if (!token) {
-        console.error("No token found in localStorage");
-        return;
-    }
-    console.log("link: " +backendHost+"api/v1/network/getRefferlink");
-    const response = await axios.get(
-        backendHost+"api/v1/network/getRefferlink",{
-        // Empty body (if needed)
-        headers: {
-            Authorization: "Bearer " + token,
-        },}
-    ).then((result) => {
-        console.log("res link:",result.data.link);
-        Link.current = result.data.link;
-        console.log("ref link:",Link.current)
-        
-    }).catch((err) => {
-        console.log("error:",err)
-    });
-}
+    }, []);
     
 async function  getBankAccountNumber(){
         await axios.post(`${backendHost}api/v1/account/getBankAccountNumber`, {
@@ -153,19 +132,40 @@ async function getTransactions() {
     });
     
   }
-    
-    // Update the balance state with the value from the response
-
+  async function getConnection() {
+    if (!token) {
+        console.error("No token found in localStorage");
+        return;
+    }
+    const response = await axios.post(backendHost + "api/v1/network/getConnection",
+        {
+        // Empty body (if needed)
+        headers: {
+            Authorization: "Bearer " + token,
+        },}
+    )
+    .catch((err) => {
+        console.log("error:",err)
+    });
+     // Update the balance state with the value from the response
+    let data = response.data
+    let dat1 = []
+     data.forEach((user) => {
+        dat1.push(
+    {
+        "Logo": {value:user.logo,vstyle:"bg-red ml-[15px]" },
+        "Userame":{hstyle: "w-[8px]",value:user.username,vstyle:"pl-[20px]"},
+        "Full name":{vstyle: "w-[143px]",value:user.fullname},
+        "Upi ID":{style: "",value:user.upId},
+        "Button": {vstyle:"text-[7px] p-[3px]"},
+}
+        )
+  });
+  setFriendData(dat1)
+    }
 
 
     let addstyle = "w-[298px] rounded-[20px] border border-black/10 p-4";
-    let data1 =[ {
-        "Logo": {value:"U",vstyle:"bg-red ml-[15px]" },
-        "Userame":{hstyle: "w-[8px]",value:"User1",vstyle:"pl-[20px]"},
-        "Full name":{vstyle: "w-[143px]",value:"Chaman Aggarwal"},
-        "Upi ID":{style: "",value:Date.now()+".upi"},
-        "Button": {vstyle:"text-[7px] p-[3px]"},
-}]
     return (
         <div>
             <div className="m-8">
@@ -181,7 +181,7 @@ async function getTransactions() {
 
                 </div>
                 <div className="mt-10 ">
-                    <TableCard opt={data1} style={"rounded-[20px] border border-black/10 p-4 h-[32vh]" } addoptions={{"logo":true,"button":true}}  errmessge={"!oops you do not  have any friend. Send money to add friend"} nvite={Link.current}/>
+                    <TableCard opt={friendData} style={"rounded-[20px] border border-black/10 p-4 h-[32vh]" } addoptions={{"logo":true,"button":true}}  errmessge={"!oops you do not  have any friend. Send money to add friend"} nvite={Link.current}/>
                 </div>
             </div>
         </div>

@@ -32,6 +32,7 @@ const ReferralSystem = () => {
                     navigate(`/auth/signin`);
                     
                 }
+                else if (err.status==200)navigate(`/dashboard`);
                 else{
                     console.log("error ",err);
                 }
