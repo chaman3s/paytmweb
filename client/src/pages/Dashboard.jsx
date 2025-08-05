@@ -6,11 +6,13 @@ import axios from "axios";
 import { BankCard } from "../components/userapp/BankCard";
 import { TableCard } from "../components/userapp/TableCard";
 import { useGeolocated } from "react-geolocated";
-
+import { update } from "../store/reducers/friendSlice";
+import { useDispatch } from "react-redux";
 const Dashboard = () => {
     const backendHost = process.env.REACT_APP_BACKENDHOST;
     console.log("backendhost:",backendHost);
     const token = localStorage.getItem("token");
+    const dispatch = useDispatch();
 
     const [balance, setBalance] = useState(0);
     const [bankBalance, setBankBalance] = useState(undefined);
@@ -162,6 +164,7 @@ async function getTransactions() {
         )
   });
   setFriendData(dat1)
+  dispatch(update(data))
     }
 
 
