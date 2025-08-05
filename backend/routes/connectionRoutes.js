@@ -118,7 +118,7 @@ router.post("/getConnection", authMiddleware, async (req, res) => {
         // Step 2: Fetch user details using userIds
         const friends = await User.find({
             _id: { $in: friendUserIds }
-        }).select('logo username fullname upId');
+        }).select('logo username fullname upId mobileNo');
 
         console.log("ok9:", friends);
         return res.status(200).json(friends);
