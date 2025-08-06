@@ -10,9 +10,7 @@ const router = express.Router();
 router.get("/balance",authMiddleware, async (req, res) => {
     const userId = req.userId;
     const existaccount = await Account.findOne({ userId: userId });
-    
     console.log("existaccount: ", existaccount);
-    
     // Check if documents are found
     if (!existaccount) {
         return res.status(411).send({ message: "No matching account found." });
@@ -23,7 +21,30 @@ router.get("/balance",authMiddleware, async (req, res) => {
         lockbalance: existaccount.lockbalance
     })
 });
-
+router.post("/getTransactions", authMiddleware, async (req, res) => {
+    if (!req.userId) {
+        return res.status(403).json({ message: "Unauthorized request, missing userId" });
+    }
+    const existaccount = await Account.findOne({ userId: req.userId });
+    if (!existaccount) {
+        return res.status(404).json({ message: "No matching account found." });
+    }
+    res.status(200).json({
+        transactions: existaccount.entries, // Corrected key name
+    });
+});
+router.post('/getBankAccountNumber' ,authMiddleware, async (req, res) => {
+    if (!req.userId) {
+        return res.status(403).json({ message: "Unauthorized request, missing userId" });
+    }
+    const existaccount = await Account.findOne({ userId: req.userId });
+    if (!existaccount) {
+        return res.status(404).json({ message: "No matching account found." });
+    }
+    res.status(200).json({
+        accountNumber: existaccount.account, // Corrected key name
+    });
+});
 router.post("/transfer", authMiddleware, async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -60,7 +81,6 @@ router.post("/transfer", authMiddleware, async (req, res) => {
             await session.abortTransaction();
             return res.status(400).json({ message: "Recipient account not found" });
         }
-
         // Create transaction reference
         const referenceNo = Date.now().toString() + Math.floor(Math.random() * 10000).toString();
         // Deduct from sender

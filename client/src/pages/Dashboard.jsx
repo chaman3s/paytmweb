@@ -25,14 +25,10 @@ const Dashboard = () => {
     const [friendData,setFriendData] = useState([])
 
     useEffect(() => {
-     
-        let tk = token
-        // checkWalletBalance()
-        // if(tk==token) console.log("same token")
-        // else console.log("no taoken mathch")
-        // getTransactions()
-        // getBankAccountNumber()
-        // getNviteLink()
+        checkWalletBalance()
+        getTransactions()
+        getBankAccountNumber()
+        getNviteLink()
         getConnection()
          // Call the function to fetch balance
     }, []);
@@ -78,7 +74,7 @@ async function getTransactions() {
             }
     
             await axios.post(
-                backendHost+"api/v1/account/get",{
+                backendHost+"api/v1/account/getTransactions",{
                 // Empty body (if needed)
                 headers: {
                     Authorization: "Bearer " + token,
