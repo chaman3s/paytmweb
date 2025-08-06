@@ -7,7 +7,8 @@ import { InputBox } from "../components/InputBox";
 import { SubHeading } from "../components/SubHeading";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { setUsername } from "../store/reducers/userSlice"; // Import the action to set the username
+import { setNumber, setUsername } from "../store/reducers/userSlice"; // Import the action to set the username
+
 
 export default function Signin() {
     const [username, setUsernameInput] = useState("");
@@ -32,7 +33,7 @@ export default function Signin() {
 
                 // Update username in Redux store
                 dispatch(setUsername(username));
-
+                dispatch(setNumber(response.data.number))
                 // Navigate to dashboard
                 navigate("/dashboard");
             }

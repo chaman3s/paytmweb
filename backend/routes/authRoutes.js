@@ -190,7 +190,6 @@ router.post("/signin", async (req, res) => {
         const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
         const  referralCodeOfUser= req.session.referralCode;
         if(referralCodeOfUser){
-            conso
         delete req.session.referralCode;
         if(makeConnections(referralCodeOfUser,userId,res)){
             return res.status(200).json({
@@ -200,6 +199,7 @@ router.post("/signin", async (req, res) => {
     }
             return res.status(200).json({
                 message: "User successfully logged in",
+                number: existingUser.mobileNo,
                 token
             });
       

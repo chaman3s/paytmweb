@@ -1,7 +1,7 @@
 import { TableCard } from "../../components/userapp/TableCard";
 import { SendCard } from "../../components/userapp/SendCard";
 import { useDispatch, useSelector } from "react-redux";
-import { setNumber } from "../../store/reducers/userSlice";
+import { setRecipient } from "../../store/reducers/userSlice";
 import { useEffect, useState } from "react";
 
 export default function P2PTransfer() {
@@ -39,7 +39,7 @@ export default function P2PTransfer() {
     console.log("row is S:",row["Phone no"].value)
     const number = row["Phone no"]?.value;
     console.log("n:",number)
-    if (number) dispatch(setNumber(number));
+    dispatch(setRecipient(number));
   }
 
   return (

@@ -8,6 +8,7 @@ import { TableCard } from "../components/userapp/TableCard";
 import { useGeolocated } from "react-geolocated";
 import { update } from "../store/reducers/friendSlice";
 import { useDispatch } from "react-redux";
+import { setRecipient } from "../store/reducers/userSlice";
 const Dashboard = () => {
     const backendHost = process.env.REACT_APP_BACKENDHOST;
     console.log("backendhost:",backendHost);
@@ -112,6 +113,7 @@ async function getTransactions() {
             setBankBalance(localStorage.getItem("bankBalance"))
         }
     }
+  
   async function getNviteLink() {
     if (!token) {
         console.error("No token found in localStorage");
@@ -159,7 +161,7 @@ async function getTransactions() {
         "Userame":{hstyle: "w-[8px]",value:user.username,vstyle:"pl-[20px]"},
         "Full name":{vstyle: "w-[143px]",value:user.fullname},
         "Upi ID":{style: "",value:user.upId},
-        "Button": {vstyle:"text-[7px] p-[3px]"},
+        "Button": {vstyle:"text-[7px] p-[3px]" ,vLabel:"Send Money",vFunPra:user.mobileNo},
 }
         )
   });
@@ -167,7 +169,9 @@ async function getTransactions() {
   dispatch(update(data))
     }
 
-
+  function handelBtnClick(num){
+        dispatch(setRecipient(num));
+    }
     let addstyle = "w-[298px] rounded-[20px] border border-black/10 p-4";
     return (
         <div>
@@ -184,7 +188,7 @@ async function getTransactions() {
 
                 </div>
                 <div className="mt-10 ">
-                    <TableCard opt={friendData} style={"rounded-[20px] border border-black/10 p-4 h-[32vh]" } addoptions={{"logo":true,"button":true}}  errmessge={"!oops you do not  have any friend. Send money to add friend"} nvite={Link.current}/>
+                    <TableCard opt={friendData} style={"rounded-[20px] border border-black/10 p-4 h-[32vh]" } addoptions={{"logo":true,"button":true}}  errmessge={"!oops you do not  have any friend. Send money to add friend"} nvite={Link.current} btnFun={handelBtnClick}/>
                 </div>
             </div>
         </div>

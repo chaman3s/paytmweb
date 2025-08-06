@@ -3,6 +3,8 @@ const {authMiddleware}  = require('../middleware/index');
 const Account= require("../models/Account");
 const mongoose = require('mongoose');
 const axios = require('axios');
+const User = require('../models/User');
+const { record } = require('zod');
 const router = express.Router();
 
 router.get("/balance",authMiddleware, async (req, res) => {
@@ -22,90 +24,95 @@ router.get("/balance",authMiddleware, async (req, res) => {
     })
 });
 
-router.post("/getTransactions", authMiddleware, async (req, res) => {
-    if (!req.userId) {
-        return res.status(403).json({ message: "Unauthorized request, missing userId" });
-    }
-
-    const existaccount = await Account.findOne({ userId: req.userId });
-
-    if (!existaccount) {
-        return res.status(404).json({ message: "No matching account found." });
-    }
-
-    res.status(200).json({
-        transactions: existaccount.entries, // Corrected key name
-    });
-});
-router.post('/getBankAccountNumber' ,authMiddleware, async (req, res) => {
-    if (!req.userId) {
-        return res.status(403).json({ message: "Unauthorized request, missing userId" });
-    }
-
-    const existaccount = await Account.findOne({ userId: req.userId });
-
-    if (!existaccount) {
-        return res.status(404).json({ message: "No matching account found." });
-    }
-    res.status(200).json({
-        accountNumber: existaccount.account, // Corrected key name
-    });
-});
-
 router.post("/transfer", authMiddleware, async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-        const { amount, to } = req.body;
-        const userId = req.userId;
+        const { amount, to, paymentMode = "wallet", recipientDescription = "Receive Money" ,SenderDescription = "send Money"} = req.body;
+        console.log("log:",res.body);
+        const senderId = req.userId;
         if (!amount || !to) {
-            return res.status(400).json({ message: "Amount and recipient ID are required" });
+            await session.abortTransaction();
+            return res.status(400).json({ message: "Amount and recipient number are required" });
         }
-        // Fetch sender account
-        const senderAccount = await Account.findOne({ userId: userId }).session(session);
+        // Find sender's account
+        const senderAccount = await Account.findOne({ userId: senderId }).session(session);
         if (!senderAccount || senderAccount.balance < amount) {
             await session.abortTransaction();
-            return res.status(400).json({ message: "Insufficient balance" });
+            return res.status(400).json({ message: "Insufficient balance or sender account not found" });
         }
-        // Fetch recipient account
-        const recipientAccount = await Account.findOne({ userId: to }).session(session);
+        // Find recipient user by mobile number
+        const recipientUser = await User.findOne({ mobileNo: to }).session(session);
+        if (!recipientUser) {
+            await session.abortTransaction();
+            return res.status(400).json({ message: "Recipient user not found" });
+        }
+        const recipientId = recipientUser._id;
+        // Prevent self-transfer
+        if (recipientId.toString() === senderId.toString()) {
+            await session.abortTransaction();
+            return res.status(400).json({ message: "Cannot transfer to self." });
+        }
+
+        // Find recipient's account
+        const recipientAccount = await Account.findOne({ userId: recipientId }).session(session);
         if (!recipientAccount) {
             await session.abortTransaction();
             return res.status(400).json({ message: "Recipient account not found" });
         }
+
+        // Create transaction reference
+        const referenceNo = Date.now().toString() + Math.floor(Math.random() * 10000).toString();
         // Deduct from sender
-        const decrementResponse = await Account.updateOne(
-            { userId: userId },
-            { $inc: { balance: -amount } },
+        const senderUpdate = await Account.updateOne(
+            { userId: senderId },
+            {
+                $inc: { balance: -amount },
+                $push: {
+                    entries: {
+                        transactionType: "Debit",
+                        referenceNo,
+                        amount,
+                        paymentMode,
+                        status: "success",
+                        description:SenderDescription,
+                    }
+                }
+            },
             { session }
         );
-        if (!decrementResponse.modifiedCount) {
-            await session.abortTransaction();
-            return res.status(400).json({ message: "Failed to deduct balance from sender." });
-        }
-        // Add to recipient
-        const incrementResponse = await Account.updateOne(
-            { userId: to },
-            { $inc: { balance: amount } },
+        //Credit to recipient
+        const recipientUpdate = await Account.updateOne(
+            { userId: recipientId },
+            {
+                $inc: { balance: amount },
+                $push: {
+                    entries: {
+                        transactionType: "Credit",
+                        referenceNo,
+                        amount,
+                        paymentMode,
+                        status: "success",
+                        description:recipientDescription,
+                    }
+                }
+            },
             { session }
         );
-        if (!incrementResponse.modifiedCount) {
+        if (!senderUpdate.modifiedCount || !recipientUpdate.modifiedCount) {
             await session.abortTransaction();
-            return res.status(400).json({ message: "Failed to credit recipient." });
+            return res.status(400).json({ message: "Transaction failed. Could not update balances." });
         }
-        // Commit
         await session.commitTransaction();
-        res.status(200).json({ message: "Transaction successful." });
+        res.status(200).json({ message: "Transaction successful", referenceNo });
     } catch (error) {
+        console.error("Transfer error:", error);
         await session.abortTransaction();
-        console.error("Transaction error:", error);
         res.status(500).json({ message: "Internal server error" });
     } finally {
         session.endSession();
     }
-});
-
- 
+}); 
 //   router.post("/create-onramp-transaction", authMiddleware, async (req, res) => {
 //     const { provider, amount } = req.body;
 //     const user = req.user; // Extracted by authMiddleware

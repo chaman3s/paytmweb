@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   Number:0,
   balance: 0,
-  recipient: '',
+  recipient: 0,
   amount: 0,
 };
 
@@ -21,7 +21,9 @@ const userSlice = createSlice({
       state.balance = action.payload;
     },
     setRecipient: (state, action) => {
+      console.log("ok1")
       state.recipient = action.payload;
+     console.log("reci:",state.recipient)
     },
     setAmount: (state, action) => {
       state.amount = action.payload;

@@ -6,7 +6,7 @@ import tk from "../../assets/image/Tick.png"
 import { useNavigate } from "react-router-dom";
 
 
-export const TableCard = ({ name, title, style, opt, addoptions, errmessge ,nvite, isTableIteamClickAble= { bool: false, fun: () => {} } }) => {
+export const TableCard = ({ name, title, style, opt, addoptions, errmessge ,nvite, isTableIteamClickAble= { bool: false, fun: () => {} } ,btnFun=() => {}}) => {
   const [copied, setCopied] = useState(false);
   const [tick,setTick]= useState(null);
   const navigate= useNavigate();
@@ -17,10 +17,6 @@ export const TableCard = ({ name, title, style, opt, addoptions, errmessge ,nvit
     navigator.clipboard.writeText(inviteLink);
     // Reset after 5 seconds
   };
-  function handleSendButton (value){
-    localStorage.setItem("number",value );
-    navigate("/p2p")
-  }
 
   if (!opt || opt.length === 0) {
     return (
@@ -69,7 +65,7 @@ export const TableCard = ({ name, title, style, opt, addoptions, errmessge ,nvit
                     </td>
                   ) : key === "Button" ? (
                     <td key={`${groupIndex}-${keyIndex}`} className="p-2 border border-gray-300   hover:border-0 ">
-                      <Button label="Send Money" style={"text-[9px] p-[3px] mt-[6px] " + (group[key].vstyle || "")}  clk={()=>handleSendButton("9354861574")}/>
+                      <Button label={group[key].vLabel} style={"text-[9px] p-[3px] mt-[6px] " + (group[key].vstyle || "")}  clk={()=>btnFun(group[key].vFunPra)}/>
                     </td>
                   ) : key === "Upi ID"?  (
                     <td key={`${groupIndex}-${keyIndex}`} className={`p-2 border border-gray-300  text-center cursor-pointer  hover:border-0  ${group[key].vstyle || ""} ${isTableIteamClickAble.bool?" cursor-pointer":""}` }>
