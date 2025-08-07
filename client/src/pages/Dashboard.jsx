@@ -86,18 +86,7 @@ async function getTransactions() {
             })
             .catch(function(err) {
                 console.log("error:",err)
-            })
-            
-            // ).then((result) => {
-            //     console.log("res transctions:",result);
-            //     setTransactions(result.data.transactions);
-                
-            // }).catch((err) => {
-            //     console.log("error:",err)
-            // });
-            
-           
-       
+            });
     }
     function getBankbalance(){
         console.log("getBankbalance")

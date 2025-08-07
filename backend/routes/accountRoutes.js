@@ -48,27 +48,46 @@ router.post('/getBankAccountNumber' ,authMiddleware, async (req, res) => {
 router.post("/transfer", authMiddleware, async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
+
     try {
-        const { amount, to, paymentMode = "wallet", recipientDescription = "Receive Money" ,SenderDescription = "send Money"} = req.body;
-        console.log("log:",res.body);
+        const {
+            amount,
+            to,
+            paymentMode = "wallet",
+            recipientDescription = "Receive Money",
+            SenderDescription = "Send Money"
+        } = req.body;
+
+        console.log("log:", req.body); // ✅ Corrected
+
         const senderId = req.userId;
+
         if (!amount || !to) {
             await session.abortTransaction();
             return res.status(400).json({ message: "Amount and recipient number are required" });
         }
+
+        if (Number(amount) <= 0) {
+            await session.abortTransaction();
+            return res.status(400).json({ message: "Invalid amount" });
+        }
+
         // Find sender's account
         const senderAccount = await Account.findOne({ userId: senderId }).session(session);
         if (!senderAccount || senderAccount.balance < amount) {
             await session.abortTransaction();
             return res.status(400).json({ message: "Insufficient balance or sender account not found" });
         }
+
         // Find recipient user by mobile number
         const recipientUser = await User.findOne({ mobileNo: to }).session(session);
         if (!recipientUser) {
             await session.abortTransaction();
             return res.status(400).json({ message: "Recipient user not found" });
         }
+
         const recipientId = recipientUser._id;
+
         // Prevent self-transfer
         if (recipientId.toString() === senderId.toString()) {
             await session.abortTransaction();
@@ -81,8 +100,10 @@ router.post("/transfer", authMiddleware, async (req, res) => {
             await session.abortTransaction();
             return res.status(400).json({ message: "Recipient account not found" });
         }
+
         // Create transaction reference
         const referenceNo = Date.now().toString() + Math.floor(Math.random() * 10000).toString();
+
         // Deduct from sender
         const senderUpdate = await Account.updateOne(
             { userId: senderId },
@@ -95,13 +116,15 @@ router.post("/transfer", authMiddleware, async (req, res) => {
                         amount,
                         paymentMode,
                         status: "success",
-                        description:SenderDescription,
+                        description: SenderDescription,
+                        currentBalance: senderAccount.balance - amount // ✅ FIXED
                     }
                 }
             },
             { session }
         );
-        //Credit to recipient
+
+        // Credit to recipient
         const recipientUpdate = await Account.updateOne(
             { userId: recipientId },
             {
@@ -113,18 +136,22 @@ router.post("/transfer", authMiddleware, async (req, res) => {
                         amount,
                         paymentMode,
                         status: "success",
-                        description:recipientDescription,
+                        description: recipientDescription,
+                        currentBalance: recipientAccount.balance + amount // ✅ FIXED
                     }
                 }
             },
             { session }
         );
+
         if (!senderUpdate.modifiedCount || !recipientUpdate.modifiedCount) {
             await session.abortTransaction();
             return res.status(400).json({ message: "Transaction failed. Could not update balances." });
         }
+
         await session.commitTransaction();
         res.status(200).json({ message: "Transaction successful", referenceNo });
+
     } catch (error) {
         console.error("Transfer error:", error);
         await session.abortTransaction();
@@ -132,7 +159,8 @@ router.post("/transfer", authMiddleware, async (req, res) => {
     } finally {
         session.endSession();
     }
-}); 
+});
+ 
 //   router.post("/create-onramp-transaction", authMiddleware, async (req, res) => {
 //     const { provider, amount } = req.body;
 //     const user = req.user; // Extracted by authMiddleware

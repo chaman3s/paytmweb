@@ -1,28 +1,71 @@
+import { useEffect, useState } from "react";
 import { TableCard } from "../../components/userapp/TableCard";
+import { useGetDataHook } from "../../hooks/useGetData";
 
-export default function Transaction(){
-    let addstyle = "w-full rounded-[20px] border border-black/10 p-4";
-    let data = [{
-        "Value Date" :{hstyle: "w-[89px]",value:"21-01-2025"},
-       "Post Date":{hstyle: "w-[89px]",value:"21-01-2025"},
-       "Payment Method": {style: "",value:Date.now()+"upi"},
-        "Description":{style: "",value:"tarnfer to user1"},
-        "Bank name":{hstyle: "w-[97px]",value:" dummy bank"},
-       "Amount": {vstyle: "text-red-500",value:"-1000 Dr"},
-        "Status":{vstyle: "text-green-700 ",value:"success"},
-        "Currency":  {style: "",value:"INR"},
-        "Balance":{style: "",value:"2000"}},
-        {
-            "Value Date" :{hstyle: "w-[75px]",value:"21-01-2025"},
-           "Post Date":{hstyle: "w-[75px]",value:"21-01-2025"},
-           "Payment Type": {style: "",value:Date.now()+"upi"},
-            "Description":{style: "",value:"tarnfer to user1"},
-            "Bank name":{style: "",value:" dummy bank"},
-           "Amount": {vstyle: "text-green-500",value:"+1000 Cr"},
-            "Status":{vstyle: "text-green-700",value:"success"},
-            "Currency":  {style: "",value:"INR"},
-            "Balance":{style: "",value:"2000"}}]
-    
+export default function Transaction() {
+    const fun = (res, data, setData) => {
+        if (!res?.transactions) return;
+
+        const dt = res.transactions.slice().reverse().map((ele, index) => {
+            const isDebit = ele.transactionType === "Debit";
+
+            return {
+                "Value Date": {
+                    hstyle: "w-[89px]",
+                    value: new Date(ele.valueDate).toLocaleDateString("en-GB")
+                },
+                "Post Date": {
+                    hstyle: "w-[89px]",
+                    value: new Date(ele.postDate).toLocaleDateString("en-GB") // <-- check if key is postDate
+                },
+                "Payment Method": {
+                    style: "",
+                    value: ele.paymentMode
+                },
+                "Description": {
+                    style: "",
+                    value: ele.description
+                },
+                "Bank name": {
+                    hstyle: "w-[97px]",
+                    value: "dummy bank"
+                },
+                "Amount": {
+                    vstyle: "text-red-500",
+                    value: `${isDebit ? "-" : "+"}${ele.amount} ${isDebit ? "Dr" : "Cr"}`
+                },
+                "Status": {
+                    vstyle: "text-green-700",
+                    value: ele.status
+                },
+                "Currency": {
+                    style: "",
+                    value: "INR"
+                },
+                "Balance": {
+                    style: "",
+                    value: ele.currentBalance
+                }
+            };
+        });
+
+        setData(dt);
+    };
+
+    const re = useGetDataHook({
+        url: "api/v1/account/getTransactions",
+        defaultValue: [],
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        callback: fun
+    });
+
+    const addstyle = {
+        con: "w-full rounded-[20px] border border-black/10 p-4"
+    };
+
     return (
         <div>
             <div className="m-8">
@@ -30,7 +73,12 @@ export default function Transaction(){
                     Transactions
                 </div>
                 <div>
-                <TableCard style={addstyle} title={"Last 30 days transactions"} opt={data} addoptions={{"logo":false,"button":false}}/>
+                    <TableCard
+                        style={addstyle}
+                        title={"transactions"}
+                        opt={re.data}
+                        addoptions={{ logo: false, button: false, head: true }}
+                    />
                 </div>
             </div>
         </div>

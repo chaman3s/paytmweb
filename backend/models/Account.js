@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const entrySchema = new mongoose.Schema({
+  currentBalance:{type:Number,required:true},
   transactionId: { type: String, default: () => Date.now().toString() },
   transactionType: { type: String, enum: ["Credit", "Debit"], required: true },
   referenceNo: { type: String, default: () => (Date.now() + 45678976542341232).toString() },

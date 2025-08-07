@@ -143,209 +143,70 @@ router.post("/signin", async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // Check if user exists
         const existingUser = await User.findOne({ username });
         if (!existingUser) {
             return res.status(401).json({ message: "Invalid username or password" });
         }
 
-        // Verify password
         const pwdCompare = await bcrypt.compare(password, existingUser.password);
         if (!pwdCompare) {
             return res.status(401).json({ message: "Invalid username or password" });
         }
 
-        // Check if account exists
         const userId = existingUser._id;
         let existingAccount = await Account.findOne({ userId });
 
-        // If the account doesn't exist, create it with an initial balance
         if (!existingAccount) {
-            const entries = [{
-                transactionType: "Debit",
-                amount: 100,
+            const initialBalance = 100;
+
+            const entry = {
+                currentBalance: initialBalance,
+                transactionType: "Credit",
+                amount: initialBalance,
                 paymentMode: "wallet",
                 status: "success",
-                description: "deposited cash to wallet",
-                valueDate: new Date().toLocaleDateString('en-GB'),
-                postData: new Date().toLocaleDateString('en-GB'),
-                Currency: "INR"
-            }];
+                description: "Cashback from platform",
+                valueDate: new Date(),
+                postData: new Date(),
+                currency: "INR"
+            };
 
             existingAccount = new Account({
                 userId,
-                username,
-                mobileNo: existingUser.mobileNo, // Ensure mobile number exists in user
+                username: existingUser.username,
+                mobileNo: existingUser.mobileNo,
                 upid: existingUser.upId,
-                bankname: existingUser.bankname,
-                entries,
-                account: Date.now(),
-                balance: 100
+                bankname: existingUser.bankname || "",
+                lockbalance: 0,
+                entries: [entry],
+                account: Date.now().toString(),
+                balance: initialBalance
             });
 
             await existingAccount.save();
         }
 
-        // Generate JWT token
         const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
-        const  referralCodeOfUser= req.session.referralCode;
-        if(referralCodeOfUser){
-        delete req.session.referralCode;
-        if(makeConnections(referralCodeOfUser,userId,res)){
-            return res.status(200).json({
-                message: "User successfully make connections",
-            })
+
+        const referralCodeOfUser = req.session.referralCode;
+        if (referralCodeOfUser) {
+            delete req.session.referralCode;
+            if (await makeConnections(referralCodeOfUser, userId, res)) {
+                return res.status(200).json({
+                    message: "User successfully made connection via referral",
+                });
+            }
         }
-    }
-            return res.status(200).json({
-                message: "User successfully logged in",
-                number: existingUser.mobileNo,
-                token
-            });
-      
-    
+
+        return res.status(200).json({
+            message: "User successfully logged in",
+            number: existingUser.mobileNo,
+            token
+        });
+
     } catch (err) {
         console.error("Signin Error:", err);
         return res.status(500).json({ message: "Internal server error", error: err.message });
     }
 });
 module.exports = router;
-
-
-// const updateBody = zod.object({
-// 	password: zod.string().optional(),
-//     newPassword: zod.string().optional(),
-//     firstName: zod.string().optional(),
-//     lastName: zod.string().optional(),
-//     email: zod.string().email().optional(),
-// });
-
-// // router.put("/userdata", authMiddleware, async (req, res) => {
-// //     const { success } = updateBody.safeParse(req.body);
-
-// //     if (!success) {
-// //         return res.status(411).json({
-// //             message: "Error while updating information"
-// //         });
-// //     }
-
-// //     try {
-// //         console.log("Raw User ID:", req.userId);
-// //         const userId = req.userId; 
-
-// //         const {updateFieldobj} = req.body; // T
-// //         // Validate the userId to ensure it's a valid ObjectId string
-// //         // if (!m.isValid(req.userId)) {
-// //         //     return res.status(400).json({ message: "Invalid User ID format" });
-// //         // }
-        
-// //         // Use createFromHexString for proper conversion
-// //         const validObjectId = new mongoose.Types.ObjectId(userId);
-// //     //     console.log("Validated ObjectId:", validObjectId.toString());
-// //     //      const findUserData = await apiPostRequest('findOne', {
-// //     //         dataSource: Source,
-// //     //         database: "paytmweb",
-// //     //         collection: "User",
-// //     //         filter: { _id:{
-// //     //             "$oid":validObjectId.toString()}},
-// //     //          // Pass the validated ObjectI
-// //     //     }
-// //     // );
-
-
-// //     // if (!findUserData.document) {
-// //     //   return res.status(404).json({ message: "User not found" });
-// //     // }
-
-// //     // const user = findUserData.document;
-
-
-// //         // Perform the update query with the valid ObjectId
-// //         // if (password && newPassword) {
-// //         //     const isMatch = await bcrypt.compare(password, user.password);
-// //         //     if (!isMatch) {
-// //         //       return res.status(400).json({ message: "Old password is incorrect" });
-// //         //     }
-      
-// //         //     // Hash the new password and add it to update fields
-// //         //     const hashedPassword = await bcrypt.hash(newPassword, 10);
-// //         //     updateFields.password = hashedPassword;
-// //         //   }
-// //         // }
-// //         const existingUser = await apiPostRequest('updateOne', {
-// //             dataSource: Source,
-// //             database: "paytmweb",
-// //             collection: "User",
-// //             filter: { _id:{
-// //                 "$oid":validObjectId.toString()}},
-// //              // Pass the validated ObjectId
-// //              update: { $set: updateFieldobj },
-// //         }
-// //     );
-
-// //         console.log("Update response:", existingUser);
-
-// //         // if (existingUser.matchedCount === 0) {
-// //         //     return res.status(404).json({ message: "User not found" });
-// //         // }
-
-// //         return res.status(200).json({
-// //             message: "Updated successfully"
-// //         });
-
-// //     } catch (error) {
-// //         console.error("Error during user update:", error);
-// //         return res.status(500).json({
-// //             message: "Internal Server Error"
-// //         });
-// //     }
-// // });
-// router.get('/api/users', async (req, res) => {
-//     const users = await User.find();
-//     res.json(users);
-//   });
-  
-//   router.post('/api/users', async (req, res) => {
-//     const newUser = new User(req.body);
-//     await newUser.save();
-//     res.status(201).json(newUser);
-//   });
-  
-//   router.delete('/api/users/:id', async (req, res) => {
-//     await User.findByIdAndDelete(req.params.id);
-//     res.status(204).send();
-//   });
-  
-  
-// router.get("/bulk", async (req, res) => {
-//     const filter = req.query.filter || "";
-//     console.log("filter: ", filter);
-
-//     const existingUsers = await apiPostRequest('find', {
-//         dataSource: Source, 
-//         database: "paytmweb", 
-//         collection: "User",
-//         filter: {
-//             username: { $regex: `^${filter}`, $options: "i" }  // Case-insensitive match
-//         }
-//     });
-    
-//     console.log("existingUsers: ", existingUsers);
-    
-//     // Check if documents are found
-//     if (!existingUsers.documents || existingUsers.documents.length === 0) {
-//         return res.status(411).send({ message: "No matching users found." });
-//     }
-
-   
-
-//     res.status(200).json({
-//         user: existingUsers.documents.map(user => ({
-//             username: user.username,
-//             firstName: user.firstName,
-//             lastName: user.lastName,
-//             _id: user._id
-//         }))
-//     })
-// })
-// module.exports = router;
